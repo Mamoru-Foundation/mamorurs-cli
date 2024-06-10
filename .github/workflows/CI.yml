@@ -17,10 +17,11 @@ jobs:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
+          toolchain: "1.76.0"
           override: true
+          components: rustfmt, clippy
 
       - uses: Swatinem/rust-cache@v2
       - name: Run linting
@@ -38,10 +39,11 @@ jobs:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
+          toolchain: "1.76.0"
           override: true
+          components: rustfmt, clippy
       - name: Build
         run: cargo build --verbose
 
@@ -54,10 +56,12 @@ jobs:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
+          toolchain: "1.76.0"
           override: true
+          components: rustfmt, clippy
+
       - name: Run tests
         run: make test
 
@@ -71,10 +75,12 @@ jobs:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
+          toolchain: "1.76.0"
           override: true
+          components: rustfmt, clippy
+
       - name: Install cargo-llvm-cov
         run: rustup update && cargo clean && cargo install cargo-llvm-cov --quiet
       - name: Generate code coverage
