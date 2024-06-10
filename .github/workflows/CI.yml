@@ -9,32 +9,39 @@ concurrency:
 
 jobs:
   linting:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.6.0
         with:
-          submodules: false
-          token: ${{ secrets.MAMORU_ACCESS_TOKEN }}
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
 
-      - uses: ./.github/actions/install-deps
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
       - name: Run linting
         run: |
-          cargo fmt -- --check
-          cargo clippy --workspace --tests -- -D warnings -A clippy::non_canonical_clone_impl -A clippy::redundant_closure_call -A clippy::transmute-int-to-bool
+            cargo fmt -- --check
+            cargo clippy --workspace --tests -- -D warnings -A clippy::non_canonical_clone_impl -A clippy::redundant_closure_call -A clippy::transmute-int-to-bool
+            
 
   build:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.6.0
         with:
-          submodules: false
-          token: ${{ secrets.MAMORU_ACCESS_TOKEN }}
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
 
-      - uses: ./.github/actions/install-deps
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          override: true
       - name: Build
         run: cargo build --verbose
 
@@ -42,13 +49,15 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.6.0
         with:
-          submodules: false
-          token: ${{ secrets.MAMORU_ACCESS_TOKEN }}
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
 
-      - uses: ./.github/actions/install-deps
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          override: true
       - name: Run tests
         run: make test
 
@@ -57,13 +66,15 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.6.0
         with:
-          submodules: false
-          token: ${{ secrets.MAMORU_ACCESS_TOKEN }}
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
 
-      - uses: ./.github/actions/install-deps
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          override: true
       - name: Install cargo-llvm-cov
         run: rustup update && cargo clean && cargo install cargo-llvm-cov --quiet
       - name: Generate code coverage
