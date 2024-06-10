@@ -31,9 +31,9 @@ pub fn query_client_config(grpc_url: Url) -> QueryClientConfig {
             endpoint: grpc_url,
             max_decoding_message_size: DEFAULT_MAX_RECV_MESSAGE_SIZE,
         },
-        sdk_versions: mamoru_chain_client::VersionConfig {
+        sdk_versions: Some(mamoru_chain_client::VersionConfig {
             versions: Vec::new(),
-        },
+        }),
     }
 }
 

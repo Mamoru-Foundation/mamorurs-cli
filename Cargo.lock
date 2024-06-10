@@ -3694,6 +3694,7 @@ dependencies = [
 [[package]]
 name = "mamoru-chain-client"
 version = "0.1.0"
+source = "git+https://github.com/Mamoru-Foundation/mamoru-core?rev=9f590a235100f0c93032b13d34a8c6d77f158c37#9f590a235100f0c93032b13d34a8c6d77f158c37"
 dependencies = [
  "async-stream",
  "base64 0.20.0",
@@ -3720,6 +3721,7 @@ dependencies = [
 [[package]]
 name = "mamoru-core"
 version = "0.1.0"
+source = "git+https://github.com/Mamoru-Foundation/mamoru-core?rev=9f590a235100f0c93032b13d34a8c6d77f158c37#9f590a235100f0c93032b13d34a8c6d77f158c37"
 dependencies = [
  "anyhow",
  "async-std",
