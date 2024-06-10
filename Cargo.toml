@@ -12,7 +12,7 @@ tonic = { version = "0.9", features = ["tls-roots", "gzip"] }
 tokio = "1.38.0"
 dirs = "5.0.1"
 reqwest = { version = "0.12", features = ["json", "blocking"] }
-mamoru-chain-client = {git = "https://github.com/Mamoru-Foundation/mamoru-core", rev = "9f590a235100f0c93032b13d34a8c6d77f158c37"}
+mamoru-chain-client = {git = "ssh://git@github.com:Mamoru-Foundation/mamoru-core.git", rev = "9f590a235100f0c93032b13d34a8c6d77f158c37"}
 #mamoru-chain-client = { path =  "../mamoru-core/chain-client"}
 cred-store = { path = "cred-store" }
 serde_yaml = "0.9.34"
