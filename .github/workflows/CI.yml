@@ -11,10 +11,12 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: webfactory/ssh-agent@v0.6.0
         with:
           token: ${{ secrets.MAMORU_ACCESS_TOKEN }}
+#          ssh-private-key: |
+#            ${{ secrets.MAMORU_CORE_KEY }}
 
       - uses: actions-rs/toolchain@v1
         with:
