@@ -1,0 +1,22 @@
+inputs:
+  repo-token:
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: "1.74.1"
+        override: true
+        components: rustfmt, clippy
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref_name == 'main' && 'true' || 'false' }}
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v1
+      with:
+        repo-token: ${{ inputs.repo-token }}
+    - name: Install NPM
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x

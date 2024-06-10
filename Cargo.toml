@@ -1,0 +1,37 @@
+[package]
+name = "mamorurs-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.4", features = ["derive", "env", "cargo"] }
+cosmrs = { git = "https://github.com/Mamoru-Foundation/cosmos-rust.git", rev = "6761b0874b0bb73a01d6fecddf90ecb58abc7b03" }
+url = "2.5.0"
+base64 = "0.22.1"
+tonic = { version = "0.9", features = ["tls-roots", "gzip"] }
+tokio = "1.38.0"
+dirs = "5.0.1"
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+#mamoru-chain-client = {git = "https://github.com/Mamoru-Foundation/mamoru-core", rev = "ae4ea52d5b1d1ad99fad1a67c5d1a14984f35c35"}
+mamoru-chain-client = { path =  "../mamoru-core/chain-client"}
+cred-store = { path = "cred-store" }
+serde_yaml = "0.9.34"
+serde = { version = "1.0.203", features = ["derive"] }
+cargo-generate = "0.21.0"
+serde_json = "1.0.117"
+config = "0.14.0"
+open = "5.1.4"
+dotenv = "0.15.0"
+spinners = "4.1.1"
+chrono = "0.4.38"
+jsonwebtoken = "9.3.0"
+tracing = "0.1.40"
+dialoguer = "0.11.0"
+inline_colorization = "0.1.6"
+
+[build-dependencies]
+tonic-build = "0.9"
+
+[dev-dependencies]
+mockito = "0.29.0"
+sealed_test = "1.1.0"

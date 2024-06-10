@@ -1,0 +1,8 @@
+runs:
+  using: composite
+  steps:
+    - name: Initialize git config
+      shell: bash
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email noreply@github.com
