@@ -61,16 +61,10 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           override: true
-          toolchain: "1.74.1"
+          toolchain: "1.76.0"
           target: ${{ matrix.platform == 'darwin' && 'aarch64-apple-darwin' || '' }}
 
       - uses: Swatinem/rust-cache@v2
-
-      - if: matrix.platform == 'linux'
-        name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.20.13
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
@@ -95,7 +89,6 @@ jobs:
         name: Run tests
         run: |
           make test
-          make bench
 
       - name: Push the binary
         run: |
