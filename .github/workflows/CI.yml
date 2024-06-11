@@ -15,20 +15,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: arduino/setup-protoc@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
 
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/install-deps
         with:
-          toolchain: "1.76.0"
-          override: true
-          components: rustfmt, clippy
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: Swatinem/rust-cache@v2
       - name: Run linting
@@ -62,12 +57,9 @@ jobs:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
-
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/install-deps
         with:
-          toolchain: "1.76.0"
-          override: true
-          components: rustfmt, clippy
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: make test
@@ -83,11 +75,9 @@ jobs:
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
 
-      - uses: actions-rs/toolchain@v1
+      - uses: ./.github/actions/install-deps
         with:
-          toolchain: "1.76.0"
-          override: true
-          components: rustfmt, clippy
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install cargo-llvm-cov
         run: rustup update && cargo clean && cargo install cargo-llvm-cov --quiet
