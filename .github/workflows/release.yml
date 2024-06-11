@@ -75,14 +75,14 @@ jobs:
         name: Build the binary
         run: |
           make build-rust-release
-          git add -f ./packaged/lib/linux-amd64/libmamoru_sniffer_go.a
+          git add -f ./bin/linux-amd64/mamorurs-cli
           git commit -m "Add 'linux-amd64' binary"
 
       - if: matrix.platform == 'darwin'
         name: Build the binary
         run: |
           make build-rust-release-macos-aarch64
-          git add -f ./packaged/lib/darwin-arm64/libmamoru_sniffer_go.a
+          git add -f /bin/darwin-arm64/mamorurs-cli
           git commit -m "Add 'darwin-arm64' binary"
 
       - if: matrix.platform == 'linux'
