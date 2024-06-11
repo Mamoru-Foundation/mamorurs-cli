@@ -39,8 +39,8 @@ jobs:
             platform: linux
           - runner: macos-13-xl
             platform: darwin
-          - runner: macos-13-xl
-            platform: darwin-aarch64
+          # - runner: macos-13-xl
+          #   platform: darwin-aarch64
 
     runs-on: ${{ matrix.runner }}
     env:
@@ -63,7 +63,7 @@ jobs:
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
-          override: true
+          override: true 
           toolchain: "1.76.0"
           target: ${{ matrix.platform == 'darwin' && 'aarch64-apple-darwin' || '' }}
 
