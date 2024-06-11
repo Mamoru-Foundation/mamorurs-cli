@@ -39,6 +39,9 @@ jobs:
             platform: linux
           - runner: macos-13-xl
             platform: darwin
+          - runner: macos-13-xl
+            platform: darwin-aarch64
+
     runs-on: ${{ matrix.runner }}
     env:
       CARGO_NET_GIT_FETCH_WITH_CLI: true
@@ -74,7 +77,7 @@ jobs:
       - if: matrix.platform == 'linux'
         name: Build the binary
         run: |
-          echo ${{ runner.os }}
+          echo $(uname -m)
           make build-rust-release
           git add -f ./bin/linux-x86_64/mamorurs-cli
           git commit -m "Add 'linux-x86_64' binary"
@@ -82,11 +85,20 @@ jobs:
       - if: matrix.platform == 'darwin'
         name: Build the binary
         run: |
+          echo $(uname -m)
+          make build-rust-release
+          git add -f ./bin/darwin-amd64/mamorurs-cli
+          git commit -m "Add 'darwin-amd64' binary"
+
+      - if: matrix.platform == 'darwin-aarch64'
+        name: Build the binary
+        run: |
+          echo $(uname -m)
           make build-rust-release-macos-aarch64
           git add -f ./bin/darwin-arm64/mamorurs-cli
           git commit -m "Add 'darwin-arm64' binary"
 
-      - if: matrix.platform == 'linux'
+      - if: matrix.platform == 'linux' || matrix.platform == 'darwin'
         name: Run tests
         run: |
           make test
