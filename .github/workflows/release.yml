@@ -74,11 +74,10 @@ jobs:
       - if: matrix.platform == 'linux'
         name: Build the binary
         run: |
-          echo {{ runner.os }}
-          os=$(echo {{ runner.os }} | tr '[:upper:]' '[:lower:]')
+          echo ${{ runner.os }}
           make build-rust-release
-          git add -f ./bin/${os}/mamorurs-cli
-          git commit -m "Add '${os}' binary"
+          git add -f ./bin/linux-x86_64/mamorurs-cli
+          git commit -m "Add 'linux-x86_64' binary"
 
       - if: matrix.platform == 'darwin'
         name: Build the binary
