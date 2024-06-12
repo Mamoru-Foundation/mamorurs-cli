@@ -39,8 +39,8 @@ jobs:
             platform: linux
           - runner: macos-13-xl
             platform: darwin
-          # - runner: macos-13-xl
-          #   platform: darwin-aarch64
+          - runner: macos-13-xl
+            platform: darwin-aarch64
 
     runs-on: ${{ matrix.runner }}
     env:
@@ -127,3 +127,8 @@ jobs:
         run: |
           git tag -a ${{ inputs.tag }} -m "Release ${{ inputs.tag }}"
           git push origin ${{ inputs.tag }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: ./bin/**/mamorurs-cli
