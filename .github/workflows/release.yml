@@ -78,6 +78,7 @@ jobs:
         name: Build the binary
         run: |
           echo $(uname -m)
+          ARCH=$(uname -m)
           make build-rust-release
           git add -f ./bin/linux-x86_64/mamorurs-cli
           git commit -m "Add 'linux-x86_64' binary"
@@ -86,7 +87,7 @@ jobs:
         name: Build the binary
         run: |
           echo $(uname -m)
-          ARCH = $(uname -m)
+          ARCH=$(uname -m)
           make build-rust-release
           git add -f ./bin/darwin-${ARCH}/mamorurs-cli
           git commit -m "Add 'darwin-${ARCH}' binary"
@@ -95,7 +96,7 @@ jobs:
         name: Build the binary
         run: |
           echo $(uname -m)
-          ARCH = $(uname -m)
+          ARCH=$(uname -m)
           make build-rust-release-macos-aarch64
           git add -f ./bin/darwin-${ARCH}/mamorurs-cli
           git commit -m "Add 'darwin-${ARCH}' binary"
