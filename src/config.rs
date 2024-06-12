@@ -1,141 +1,177 @@
-use config::Config as ConfigBuilder;
-use std::{env, error::Error, fs, path::PathBuf};
+use config::{Config as ConfigBuilder, File, FileFormat};
+use serde::Deserialize;
+use std::{
+    error::Error,
+    fs,
+    io::{BufWriter, Write},
+    path::Path,
+};
 
-const CONFIG_NAME: &str = ".env";
-
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Config {
-    pub domain: String,
-    pub client_id: String,
-    pub audience: String,
-    pub grpc_url: String,
-    pub private_key: String,
-    pub gas_limit: u64,
+    pub mamoru_cli_auth0_domain: String,
+    pub mamoru_cli_auth0_client_id: String,
+    pub mamoru_cli_auth0_audience: String,
+    pub mamoru_rpc_url: String,
+    pub mamoru_private_key: String,
+    pub mamoru_gas_limit: String,
+    pub mamoru_graphql_url: String,
 }
 
 impl Config {
     pub fn from_env(config_path: Option<&str>) -> Result<Self, Box<dyn Error>> {
+        let mut builder = ConfigBuilder::builder();
         if let Some(config_path) = config_path {
-            Self::create_config_file(config_path);
-            dotenv::from_filename(PathBuf::from(config_path).join(CONFIG_NAME)).ok();
-        } else {
-            dotenv::dotenv().ok();
+            create_config_file(config_path)?;
+            builder =
+                builder.add_source(File::from(Path::new(config_path)).format(FileFormat::Toml));
         }
 
-        let builder = ConfigBuilder::builder()
-            .set_default(
-                "CLI_AUTH0_DOMAIN",
-                env::var("MAMORU_CLI_AUTH0_DOMAIN").unwrap_or_default(),
-            )
-            .unwrap()
-            .set_default(
-                "CLI_AUTH0_CLIENT_ID",
-                env::var("MAMORU_CLI_AUTH0_CLIENT_ID").unwrap_or_default(),
-            )
-            .unwrap()
-            .set_default(
-                "CLI_AUTH0_AUDIENCE",
-                env::var("MAMORU_CLI_AUTH0_AUDIENCE").unwrap_or_default(),
-            )
-            .unwrap()
-            .set_default("RPC_URL", env::var("MAMORU_RPC_URL").unwrap_or_default())
-            .unwrap()
-            .set_default(
-                "PRIVATE_KEY",
-                env::var("MAMORU_PRIVATE_KEY").unwrap_or_default(),
-            )
-            .unwrap()
-            .set_default(
-                "GAS_LIMIT",
-                env::var("MAMORU_GAS_LIMIT").unwrap_or_default(),
-            )
-            .unwrap()
-            .add_source(
-                config::Environment::with_prefix("MAMORU")
-                    .try_parsing(true)
-                    .separator("_"),
-            );
+        builder = builder.add_source(config::Environment::default());
 
         let config = match builder.build() {
             Ok(config) => config,
             Err(e) => {
-                println!("Error: {}", e);
-                return Err(Box::new(e));
+                println!("Error build config: {}", e);
+                Err(Box::new(e))?
             }
         };
 
-        Ok(Self {
-            domain: config.get("CLI_AUTH0_DOMAIN").unwrap_or_default(),
-            client_id: config.get("CLI_AUTH0_CLIENT_ID").unwrap_or_default(),
-            audience: config.get("CLI_AUTH0_AUDIENCE").unwrap_or_default(),
-            grpc_url: config.get("RPC_URL").unwrap_or_default(),
-            private_key: config.get("PRIVATE_KEY").unwrap_or_default(),
-            gas_limit: config.get::<u64>("GAS_LIMIT").unwrap_or_default(),
-        })
-    }
-
-    fn create_config_file(dir_path: &str) {
-        // look for a config file on home directory
-        if let Some(path) = dirs::home_dir() {
-            let config_file = path.join(dir_path).join(CONFIG_NAME);
-            if !config_file.exists() {
-                // create a config file
-                let config = r#"
-MAMORU_CLI_AUTH0_DOMAIN = "https://mamoru.us.auth0.com"
-MAMORU_CLI_AUTH0_CLIENT_ID = "DKVTdw1UnneGumqOAPrEJs8RqdGTDd2e"
-MAMORU_CLI_AUTH0_AUDIENCE = "https://mamoru.ai"
-MAMORU_GAS_LIMIT = "200000000"
-                "#;
-                fs::write(config_file, config).expect("Unable to write file");
+        match config.try_deserialize::<Config>() {
+            Ok(settings) => Ok(settings),
+            Err(e) => {
+                println!("Error: {}", e);
+                Err(Box::new(e))
             }
         }
     }
 }
 
+fn create_config_file(config_path: &str) -> Result<(), Box<dyn Error>> {
+    //create config file if it doesn't exist
+    if !Path::new(config_path).exists() {
+        let mut file = BufWriter::new(fs::File::create(config_path)?);
+
+        file.write_all(
+            toml::toml! {
+                MAMORU_CLI_AUTH0_DOMAIN = "https://mamoru.us.auth0.com"
+                MAMORU_CLI_AUTH0_CLIENT_ID = "DKVTdw1UnneGumqOAPrEJs8RqdGTDd2e"
+                MAMORU_CLI_AUTH0_AUDIENCE = "https://mamoru.ai"
+                MAMORU_RPC_URL = "http://localhost:9090"
+                MAMORU_PRIVATE_KEY = ""
+                MAMORU_GAS_LIMIT = "200000000"
+                MAMORU_GRAPHQL_URL = "https://mamoru-be-production.mamoru.foundation/graphql"
+            }
+            .to_string()
+            .as_bytes(),
+        )?;
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use sealed_test::prelude::*;
-    use std::env;
-
+    use crate::config::tests::tempfile::TempDir;
     use crate::config::Config;
+    use sealed_test::prelude::*;
+    use std::{env, fs::File, io::Write};
 
     #[sealed_test]
-    fn test_config() {
+    fn test_config_from_env() {
         env::set_var("MAMORU_CLI_AUTH0_DOMAIN", "http://localhost");
         env::set_var("MAMORU_CLI_AUTH0_CLIENT_ID", "some_client_id");
         env::set_var("MAMORU_CLI_AUTH0_AUDIENCE", "http://localhost");
         env::set_var("MAMORU_RPC_URL", "http://localhost:9090");
         env::set_var("MAMORU_PRIVATE_KEY", "private_key");
         env::set_var("MAMORU_GAS_LIMIT", "200000000");
+        env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
         let config = Config::from_env(None).unwrap();
-        assert_eq!(config.domain, "http://localhost", "domain should be equal");
         assert_eq!(
-            config.client_id, "some_client_id",
+            config.mamoru_cli_auth0_domain, "http://localhost",
+            "domain should be equal"
+        );
+        assert_eq!(
+            config.mamoru_cli_auth0_client_id, "some_client_id",
             "client_id should be equal"
         );
         assert_eq!(
-            config.audience, "http://localhost",
+            config.mamoru_cli_auth0_audience, "http://localhost",
             "audience should be equal"
         );
         assert_eq!(
-            config.grpc_url, "http://localhost:9090",
+            config.mamoru_rpc_url, "http://localhost:9090",
             "grpc_url should be equal"
         );
         assert_eq!(
-            config.private_key, "private_key",
+            config.mamoru_private_key, "private_key",
             "private_key should be equal"
         );
-        assert_eq!(config.gas_limit, 200000000, "gas_limit should be equal");
+        assert_eq!(
+            config.mamoru_gas_limit, "200000000",
+            "gas_limit should be equal"
+        );
+        assert_eq!(
+            config.mamoru_graphql_url, "http://localhost:1234",
+            "graphql_url should be equal"
+        );
     }
 
     #[sealed_test]
-    fn test_empy_env() {
-        let config = Config::from_env(None).unwrap();
-        assert_eq!(config.domain, "", "domain should be equal");
-        assert_eq!(config.client_id, "", "client_id should be equal");
-        assert_eq!(config.audience, "", "audience should be equal");
-        assert_eq!(config.grpc_url, "", "grpc_url should be equal");
-        assert_eq!(config.private_key, "", "private_key should be equal");
-        assert_eq!(config.gas_limit, 0, "gas_limit should be equal");
+    fn test_override_config_from_file() {
+        env::set_var("MAMORU_CLI_AUTH0_DOMAIN", "http://localhost:0000");
+        env::set_var("MAMORU_CLI_AUTH0_CLIENT_ID", "some_client_id0");
+        env::set_var("MAMORU_CLI_AUTH0_AUDIENCE", "http://localhost:0000");
+        env::set_var("MAMORU_RPC_URL", "http://localhost:0000");
+        env::set_var("MAMORU_PRIVATE_KEY", "private_key0");
+        env::set_var("MAMORU_GAS_LIMIT", "1234567890");
+        env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
+        let tmp_dir = TempDir::new().unwrap();
+        let config_file = tmp_dir.path().join("mamoru.toml");
+        let mut tmp_file = File::create(&config_file).unwrap();
+        let config_data = toml::toml! {
+            MAMORU_CLI_AUTH0_DOMAIN = "http://cli_auth0_domain"
+            MAMORU_CLI_AUTH0_CLIENT_ID = "cli_auth0_client_id"
+            MAMORU_CLI_AUTH0_AUDIENCE = "http://cli_auth0_audience"
+            MAMORU_RPC_URL = "http://rpc_url"
+            MAMORU_PRIVATE_KEY = "private_key"
+            MAMORU_GAS_LIMIT = "9000000"
+            MAMORU_GRAPHQL_URL = "http://graphql_url"
+        };
+        tmp_file
+            .write_all(config_data.to_string().as_bytes())
+            .unwrap();
+
+        let config = Config::from_env(config_file.to_str()).unwrap();
+        assert_eq!(
+            config.mamoru_cli_auth0_domain, "http://localhost:0000",
+            "domain should be equal"
+        );
+        assert_eq!(
+            config.mamoru_cli_auth0_client_id, "some_client_id0",
+            "client_id should be equal"
+        );
+        assert_eq!(
+            config.mamoru_cli_auth0_audience, "http://localhost:0000",
+            "audience should be equal"
+        );
+        assert_eq!(
+            config.mamoru_rpc_url, "http://localhost:0000",
+            "grpc_url should be equal"
+        );
+        assert_eq!(
+            config.mamoru_private_key, "private_key0",
+            "private_key should be equal"
+        );
+        assert_eq!(
+            config.mamoru_gas_limit, "1234567890",
+            "gas_limit should be equal"
+        );
+        assert_eq!(
+            config.mamoru_graphql_url, "http://localhost:1234",
+            "graphql_url should be equal"
+        );
+
+        tmp_dir.close().unwrap();
     }
 }

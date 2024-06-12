@@ -7,6 +7,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use spinners::{Spinner, Spinners};
 use std::time::{Duration, Instant};
+use tracing::debug;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeviceAuthResponse {
@@ -20,16 +21,19 @@ pub struct DeviceAuthResponse {
 
 pub async fn login(config: &Config) -> Result<TokenResponse, Box<dyn std::error::Error>> {
     let client = Client::new();
+    debug!("requesting device code {}", config.mamoru_cli_auth0_domain);
     let response = client
-        .post(&format!("{}/oauth/device/code", config.domain))
+        .post(&format!(
+            "{}/oauth/device/code",
+            config.mamoru_cli_auth0_domain
+        ))
         .form(&[
-            ("client_id", config.client_id.as_str()),
-            ("audience", config.audience.as_str()),
+            ("client_id", config.mamoru_cli_auth0_client_id.as_str()),
+            ("audience", config.mamoru_cli_auth0_audience.as_str()),
             ("scope", "openid profile email offline_access"),
         ])
         .send()
-        .await
-        .unwrap();
+        .await?;
 
     let device_auth_response: DeviceAuthResponse = match response.json::<DeviceAuthResponse>().await
     {
@@ -46,7 +50,7 @@ pub async fn login(config: &Config) -> Result<TokenResponse, Box<dyn std::error:
 
     _ = open::that(device_auth_response.verification_uri_complete);
 
-    let token_endpoint = format!("https://{}/oauth/token", config.domain);
+    let token_endpoint = format!("https://{}/oauth/token", config.mamoru_cli_auth0_domain);
 
     let start_instant = Instant::now();
     let expiry_duration = Duration::from_secs(device_auth_response.expires_in as u64);
@@ -65,7 +69,7 @@ pub async fn login(config: &Config) -> Result<TokenResponse, Box<dyn std::error:
             .form(&[
                 ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
                 ("device_code", &device_auth_response.device_code),
-                ("client_id", config.client_id.as_str()),
+                ("client_id", config.mamoru_cli_auth0_client_id.as_str()),
             ])
             .send()
             .await

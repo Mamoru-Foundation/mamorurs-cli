@@ -9,8 +9,6 @@ use mamoru_chain_client::{
 use serde_json::json;
 use url::Url;
 
-const GRAPHQL_URL: &str = "https://mamoru-be-production.mamoru.foundation/graphql";
-
 #[allow(dead_code)]
 pub async fn query_client(grpc_url: Url) -> QueryClient {
     QueryClient::connect(query_client_config(grpc_url))
@@ -84,6 +82,7 @@ fn string_to_signing_key(private_key_str: &str) -> secp256k1::SigningKey {
 }
 
 pub async fn register_daemon_to_graphql(
+    graphql_url: &str,
     token: &str,
     daemon_id: &str,
 ) -> std::result::Result<reqwest::Response, reqwest::Error> {
@@ -99,7 +98,7 @@ pub async fn register_daemon_to_graphql(
 
     loop {
         match client
-            .post(GRAPHQL_URL)
+            .post(graphql_url)
             .body(body_string.clone())
             .header("Content-Type", "application/json")
             .header("Authorization", format!("Bearer {}", token))
@@ -110,8 +109,8 @@ pub async fn register_daemon_to_graphql(
                 return Ok(response);
             }
             Err(e) => {
-                println!("Error register agent to the organisation: {}", e);
                 std::thread::sleep(std::time::Duration::from_secs(1000));
+                println!("Error register agent to the organisation: {}", e);
             }
         };
     }

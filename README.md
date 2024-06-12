@@ -31,7 +31,8 @@ To publish an agent to the Mamoru chain, use the publish command followed by the
 ```bash 
 mamorurs-cli agent new -n [<name>]
 mamorurs-cli login 
-mamorurs-cli  agent publish  --key "<mamoru_private_key>"  -c <CHAI_NAME> /path/to/agent_dir/
+mamorurs-cli  agent publish --key "<KEY>" --chain-name <CHAIN_NAME>  /path/to/agent_dir/
+mamorurs-cli  agent launch --key "<KEY>" --chain-name <CHAIN_NAME> --metadata-id <METADATA_ID> /path/to/agent_dir/
 ``` 
 
 ## Testing
