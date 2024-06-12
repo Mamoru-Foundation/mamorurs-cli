@@ -1,6 +1,6 @@
 use crate::manifest::ManifestParameter;
 use dialoguer::Input;
-use inline_colorization::{color_yellow, color_reset};
+use inline_colorization::{color_reset, color_yellow};
 use std::collections::HashMap;
 
 pub fn input_user_params(

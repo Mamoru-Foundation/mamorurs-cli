@@ -1,9 +1,9 @@
-use std::{collections::HashMap, path::Path};
-use url::Url;
-use inline_colorization::{color_green, color_reset};
 use crate::client::message_client;
 use crate::daemon_builder::build_daemon_parameters;
 use crate::{input::input_user_params, manifest::read_manifest_file};
+use inline_colorization::{color_green, color_reset};
+use std::{collections::HashMap, path::Path};
+use url::Url;
 
 pub async fn launch_agent(
     metadata_id: String,

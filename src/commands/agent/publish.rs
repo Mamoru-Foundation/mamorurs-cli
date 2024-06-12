@@ -35,7 +35,10 @@ pub async fn publish_agent(
     time::sleep(Duration::from_millis(1000)).await;
 
     let daemon_metadata_id = dm_response.unwrap().daemon_metadata_id;
-    println!("DaemonMetadataId: {color_green}{}{color_reset}", daemon_metadata_id);
+    println!(
+        "DaemonMetadataId: {color_green}{}{color_reset}",
+        daemon_metadata_id
+    );
     println!("DaemonMetadata successfully registered");
 
     let daemon_parameters =
