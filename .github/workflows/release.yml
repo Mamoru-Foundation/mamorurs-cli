@@ -63,7 +63,7 @@ jobs:
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
-          override: true 
+          override: true
           toolchain: "1.76.0"
           target: ${{ matrix.platform == 'darwin' && 'aarch64-apple-darwin' || '' }}
 
@@ -86,17 +86,19 @@ jobs:
         name: Build the binary
         run: |
           echo $(uname -m)
+          ARCH = $(uname -m)
           make build-rust-release
-          git add -f ./bin/darwin-amd64/mamorurs-cli
-          git commit -m "Add 'darwin-amd64' binary"
+          git add -f ./bin/darwin-${ARCH}/mamorurs-cli
+          git commit -m "Add 'darwin-${ARCH}' binary"
 
       - if: matrix.platform == 'darwin-aarch64'
         name: Build the binary
         run: |
           echo $(uname -m)
+          ARCH = $(uname -m)
           make build-rust-release-macos-aarch64
-          git add -f ./bin/darwin-arm64/mamorurs-cli
-          git commit -m "Add 'darwin-arm64' binary"
+          git add -f ./bin/darwin-${ARCH}/mamorurs-cli
+          git commit -m "Add 'darwin-${ARCH}' binary"
 
       - if: matrix.platform == 'linux' || matrix.platform == 'darwin'
         name: Run tests
