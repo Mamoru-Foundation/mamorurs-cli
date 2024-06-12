@@ -50,7 +50,7 @@ pub async fn login(config: &Config) -> Result<TokenResponse, Box<dyn std::error:
 
     _ = open::that(device_auth_response.verification_uri_complete);
 
-    let token_endpoint = format!("https://{}/oauth/token", config.mamoru_cli_auth0_domain);
+    let token_endpoint = format!("{}/oauth/token", config.mamoru_cli_auth0_domain);
 
     let start_instant = Instant::now();
     let expiry_duration = Duration::from_secs(device_auth_response.expires_in as u64);

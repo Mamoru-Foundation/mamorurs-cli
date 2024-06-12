@@ -1,7 +1,6 @@
 use crate::manifest::ManifestParameter;
 use dialoguer::Input;
-use inline_colorization::{color_green, color_reset};
-use mamoru_chain_client::proto::validation_chain::daemon_metadata_paremeter::DaemonParemeterType;
+use inline_colorization::{color_yellow, color_reset};
 use std::collections::HashMap;
 
 pub fn input_user_params(
@@ -12,15 +11,12 @@ pub fn input_user_params(
         let param_name = param.key.as_str();
         let user_input: String = Input::new()
             .with_prompt(format!(
-                "Enter value for {color_green}{}{color_reset}",
+                "Enter value for {color_yellow}{}{color_reset}",
                 param_name
             ))
+            .default(param.default_value.as_str().into())
             .interact_text()
             .unwrap();
-
-        let param_type: DaemonParemeterType =
-            DaemonParemeterType::from_str_name(param.type_.as_str()).unwrap();
-        println!("{:?}={}", param_type, user_input);
         user_params.insert(param_name.to_string(), user_input);
     }
 }

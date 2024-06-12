@@ -4,7 +4,7 @@ use crate::{
     input::input_user_params,
     manifest::read_manifest_file,
 };
-
+use inline_colorization::{color_green, color_reset};
 use std::{collections::HashMap, fs, path::Path, time::Duration};
 use tokio::time;
 use url::Url;
@@ -35,7 +35,7 @@ pub async fn publish_agent(
     time::sleep(Duration::from_millis(1000)).await;
 
     let daemon_metadata_id = dm_response.unwrap().daemon_metadata_id;
-    println!("DaemonMetadataId: {:?}", daemon_metadata_id);
+    println!("DaemonMetadataId: {color_green}{}{color_reset}", daemon_metadata_id);
     println!("DaemonMetadata successfully registered");
 
     let daemon_parameters =
@@ -58,7 +58,7 @@ pub async fn publish_agent(
     };
 
     let daemon_id = daemon.unwrap().daemon_id;
-    println!("DaemonId: {:?}", daemon_id);
+    println!("DaemonId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 
     Ok(daemon_id)

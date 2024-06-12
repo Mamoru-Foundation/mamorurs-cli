@@ -119,7 +119,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(agent_matches) = matches.subcommand_matches("agent") {
         if let Some(publish_matches) = agent_matches.subcommand_matches("publish") {
             check_auth(&mut context).await?;
-            dbg!(&context);
 
             let file_path = publish_matches
                 .get_one::<PathBuf>("file")
@@ -311,7 +310,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let access_token = resp.access_token.clone().unwrap();
                 let refresh_token = resp.refresh_token.clone().unwrap_or_default();
                 println!();
-                println!("Access Token: {}", access_token);
+                println!("Access token received!");
                 if commands::login::save_tokens(&access_token, &refresh_token, &mut context)
                     .is_err()
                 {
@@ -336,7 +335,7 @@ where
         Ok(token) => match token {
             Some(token) => token,
             None => {
-                eprintln!("You must login first.");
+                eprintln!("You must login first, please run 'mamorurs-cli login'.");
                 std::process::exit(1);
             }
         },

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, path::Path};
 use url::Url;
-
+use inline_colorization::{color_green, color_reset};
 use crate::client::message_client;
 use crate::daemon_builder::build_daemon_parameters;
 use crate::{input::input_user_params, manifest::read_manifest_file};
@@ -34,7 +34,7 @@ pub async fn launch_agent(
     };
 
     let daemon_id = daemon.unwrap().daemon_id;
-    println!("DaemonId: {:?}", daemon_id);
+    println!("DaemonId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 
     Ok(daemon_id)
