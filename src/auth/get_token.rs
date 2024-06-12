@@ -3,6 +3,7 @@ use base64::Engine;
 use cred_store::CredStore;
 use reqwest::blocking::Client;
 use serde::Deserialize;
+use tracing::info;
 
 use super::TokenResponse;
 
@@ -72,8 +73,12 @@ pub fn get_token<T: CredStore>(
     match (access_token, refresh_token) {
         (Some(at), Some(rt)) => {
             if is_token_expired(&at) {
-                let token_response =
-                    refresh_access_token(&context.config.domain, &context.config.client_id, &rt)?;
+                info!("Access token expired. Refreshing...");
+                let token_response = refresh_access_token(
+                    &context.config.mamoru_cli_auth0_domain,
+                    &context.config.mamoru_cli_auth0_client_id,
+                    &rt,
+                )?;
                 let new_access_token = token_response.access_token.unwrap();
                 let new_refresh_token = token_response.refresh_token.unwrap();
 

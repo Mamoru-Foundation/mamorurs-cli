@@ -1851,12 +1851,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
-name = "dotenv"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
-
-[[package]]
 name = "ecdsa"
 version = "0.16.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3780,7 +3774,6 @@ dependencies = [
  "cred-store",
  "dialoguer",
  "dirs 5.0.1",
- "dotenv",
  "inline_colorization",
  "jsonwebtoken",
  "mamoru-chain-client",
@@ -3793,6 +3786,7 @@ dependencies = [
  "serde_yaml",
  "spinners",
  "tokio",
+ "toml 0.8.14",
  "tonic",
  "tonic-build",
  "tracing",
