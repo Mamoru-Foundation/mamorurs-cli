@@ -12,9 +12,11 @@ pub async fn launch_agent(
     chain_name: String,
     dir_path: &Path,
     gas_limit: u64,
+    chain_id: String,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let manifest = read_manifest_file(dir_path).expect("Manifest file not found");
-    let message_client = message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit).await;
+    let message_client =
+        message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit, chain_id).await;
     let mut user_params: HashMap<String, String> = HashMap::new();
     if let Some(manifest_params) = &manifest.parameters {
         input_user_params(manifest_params, &mut user_params);

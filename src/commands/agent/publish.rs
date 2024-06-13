@@ -19,6 +19,7 @@ pub async fn publish_agent(
     chain_name: String,
     dir_path: &Path,
     gas_limit: u64,
+    chain_id: String,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let manifest = read_manifest_file(dir_path).expect("Manifest file not found");
 
@@ -27,14 +28,18 @@ pub async fn publish_agent(
         input_user_params(manifest_params, &mut user_params);
     }
 
-    let message_client = message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit).await;
+    let message_client =
+        message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit, chain_id).await;
     let module_content = read_wasm_file(dir_path)?;
     let request = build_daemon_metadata_request(&manifest, &module_content);
-    let dm_response = message_client.register_daemon_metadata(request).await;
+    let dm_response = match message_client.register_daemon_metadata(request).await {
+        Ok(response) => response,
+        Err(e) => return Err(Box::new(e)),
+    };
 
     time::sleep(Duration::from_millis(1000)).await;
 
-    let daemon_metadata_id = dm_response.unwrap().daemon_metadata_id;
+    let daemon_metadata_id = dm_response.daemon_metadata_id;
     println!(
         "DaemonMetadataId: {color_green}{}{color_reset}",
         daemon_metadata_id

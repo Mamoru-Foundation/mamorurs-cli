@@ -77,6 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 .default_value("200000000")
                                 .env("MAMORU_GAS_LIMIT"),
                         )
+                        .arg(arg!(--"chain-id" <CHAIN_ID> "Chain ID").required(false))
                         .arg(
                             Arg::new("file")
                                 .help("Path to Agent directory")
@@ -109,7 +110,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 .help("Path to Agent directory")
                                 .required(true)
                                 .value_parser(value_parser!(PathBuf)),
-                        ),
+                        )
+                        .arg(arg!(--"chain-id" <CHAIN_ID> "Chain ID").required(false)),
                 ),
         )
         .subcommand(Command::new("logout").about("Logout from mamoru"))
@@ -171,8 +173,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .parse::<u64>()
                 .expect("gas limit must be a number");
 
+            let chain_id: String = match publish_matches.get_one::<String>("chain-id") {
+                Some(chain_id) => chain_id.to_string(),
+                None => {
+                    if context.config.mamoru_chain_id.is_empty() {
+                        eprintln!("Chain ID required");
+                        std::process::exit(1);
+                    } else {
+                        context.config.mamoru_chain_id.clone()
+                    }
+                }
+            };
+
             let publish_result = commands::agent::publish::publish_agent(
-                grpc, prkey, chain_name, &file_path, gas_limit,
+                grpc, prkey, chain_name, &file_path, gas_limit, chain_id,
             )
             .await;
 
@@ -258,6 +272,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .parse::<u64>()
                 .expect("gas limit must be a number");
 
+            let chain_id: String = match launch_matches.get_one::<String>("chain-id") {
+                Some(chain_id) => chain_id.to_string(),
+                None => {
+                    if context.config.mamoru_chain_id.is_empty() {
+                        eprintln!("Gas limit required");
+                        std::process::exit(1);
+                    } else {
+                        context.config.mamoru_chain_id.clone()
+                    }
+                }
+            };
+
             let publish_result = commands::agent::launch::launch_agent(
                 metadata_id,
                 grpc,
@@ -265,6 +291,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 chain_name,
                 &file_path,
                 gas_limit,
+                chain_id,
             )
             .await;
 

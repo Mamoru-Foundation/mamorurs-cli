@@ -46,7 +46,7 @@ To configure the CLI, you can edit the configuration file located at ~/.mamorurc
 - MAMORU_PRIVATE_KEY 
 - MAMORU_GAS_LIMIT 
 - MAMORU_GRAPHQL_URL 
-
+- MAMORU_CHAIN_ID
 
 
 ## Testing

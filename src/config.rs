@@ -16,6 +16,7 @@ pub struct Config {
     pub mamoru_private_key: String,
     pub mamoru_gas_limit: String,
     pub mamoru_graphql_url: String,
+    pub mamoru_chain_id: String,
 }
 
 impl Config {
@@ -26,7 +27,7 @@ impl Config {
             builder =
                 builder.add_source(File::from(Path::new(config_path)).format(FileFormat::Toml));
         }
-
+        // builder = builder.add_source(File::with_name("examples/hierarchical-env/config/local").required(false))
         builder = builder.add_source(config::Environment::default());
 
         let config = match builder.build() {
@@ -61,6 +62,7 @@ fn create_config_file(config_path: &str) -> Result<(), Box<dyn Error>> {
                 MAMORU_PRIVATE_KEY = ""
                 MAMORU_GAS_LIMIT = "200000000"
                 MAMORU_GRAPHQL_URL = "https://mamoru-be-production.mamoru.foundation/graphql"
+                MAMORU_CHAIN_ID = "devnet"
             }
             .to_string()
             .as_bytes(),
@@ -86,6 +88,7 @@ mod tests {
         env::set_var("MAMORU_PRIVATE_KEY", "private_key");
         env::set_var("MAMORU_GAS_LIMIT", "200000000");
         env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
+        env::set_var("MAMORU_CHAIN_ID", "validationchain");
         let config = Config::from_env(None).unwrap();
         assert_eq!(
             config.mamoru_cli_auth0_domain, "http://localhost",
@@ -115,6 +118,10 @@ mod tests {
             config.mamoru_graphql_url, "http://localhost:1234",
             "graphql_url should be equal"
         );
+        assert_eq!(
+            config.mamoru_chain_id, "validationchain",
+            "chain_id should be equal"
+        );
     }
 
     #[sealed_test]
@@ -126,6 +133,7 @@ mod tests {
         env::set_var("MAMORU_PRIVATE_KEY", "private_key0");
         env::set_var("MAMORU_GAS_LIMIT", "1234567890");
         env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
+        env::set_var("MAMORU_CHAIN_ID", "validationchain");
         let tmp_dir = TempDir::new().unwrap();
         let config_file = tmp_dir.path().join("mamoru.toml");
         let mut tmp_file = File::create(&config_file).unwrap();
@@ -137,6 +145,7 @@ mod tests {
             MAMORU_PRIVATE_KEY = "private_key"
             MAMORU_GAS_LIMIT = "9000000"
             MAMORU_GRAPHQL_URL = "http://graphql_url"
+            MAMORU_CHAIN_ID = "chain_id"
         };
         tmp_file
             .write_all(config_data.to_string().as_bytes())
@@ -170,6 +179,10 @@ mod tests {
         assert_eq!(
             config.mamoru_graphql_url, "http://localhost:1234",
             "graphql_url should be equal"
+        );
+        assert_eq!(
+            config.mamoru_chain_id, "validationchain",
+            "chain_id should be equal"
         );
 
         tmp_dir.close().unwrap();
