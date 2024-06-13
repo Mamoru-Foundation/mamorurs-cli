@@ -16,8 +16,13 @@ pub async fn query_client(grpc_url: Url) -> QueryClient {
         .expect("QueryClient::connect error.")
 }
 
-pub async fn message_client(prkey: String, grpc_url: &Url, gas_limit: u64) -> MessageClient {
-    MessageClient::connect(message_client_config(prkey, grpc_url, gas_limit).await)
+pub async fn message_client(
+    prkey: String,
+    grpc_url: &Url,
+    gas_limit: u64,
+    chain_id: String,
+) -> MessageClient {
+    MessageClient::connect(message_client_config(prkey, grpc_url, gas_limit, chain_id).await)
         .await
         .expect("MessageClient::connect error.")
 }
@@ -39,6 +44,7 @@ pub async fn message_client_config(
     key: String,
     grpc_url: &Url,
     gas_limit: u64,
+    chain_id: String,
 ) -> MessageClientConfig {
     let private_key: cosmrs::crypto::secp256k1::SigningKey = string_to_signing_key(key.as_str());
     let builder = Config::builder()
@@ -64,6 +70,7 @@ pub async fn message_client_config(
                 connection: connect_config,
                 chain: ChainConfig {
                     tx_gas_limit: gas_limit,
+                    chain_id,
                     ..Default::default()
                 },
                 account: AccountConfig::new(private_key),
