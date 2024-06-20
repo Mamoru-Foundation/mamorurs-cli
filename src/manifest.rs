@@ -41,11 +41,8 @@ pub struct ManifestParameter {
 
 pub fn read_manifest_file(dir_path: &Path) -> Option<Manifest> {
     let manifest_path = dir_path.join("manifest.yaml");
-    let exists = manifest_path.exists();
-
-    println!("Manifest file exists: {}", exists);
-
-    if !exists {
+    if !manifest_path.exists() {
+        println!("Manifest file not found: {}", manifest_path.display());
         return None;
     }
 

@@ -99,3 +99,65 @@ pub fn build_daemon_parameters(
         }
     }
 }
+
+pub fn check_supported_chains(supported_chains: &[String], chain_name: &String) -> bool {
+    if !supported_chains.contains(chain_name) {
+        return false;
+    }
+
+    true
+}
+
+#[cfg(test)]
+mod test {
+    use crate::manifest::ManifestParameter;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_build_daemon_metadata_request() {
+        let manifest = crate::manifest::Manifest {
+            name: "test".to_string(),
+            description: "test".to_string(),
+            parameters: Some(vec![ManifestParameter {
+                type_: "NUMBER".to_string(),
+                title: "test".to_string(),
+                key: "test".to_string(),
+                description: "test".to_string(),
+                default_value: "test".to_string(),
+                required_for: None,
+                hidden_for: None,
+                symbol: None,
+                min: None,
+                max: None,
+                min_len: None,
+                max_len: None,
+            }]),
+            supported_chains: vec!["TEST_CHAIN".to_string()],
+            tags: vec![],
+            subscribable: true,
+            logo_url: "https://mamoru.ai/default-agent-logo.png".to_string(),
+            version: HashMap::new(),
+        };
+
+        let wasm_content = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        let request =
+            crate::daemon_builder::build_daemon_metadata_request(&manifest, &wasm_content);
+
+        assert_eq!(request.title, "test");
+        assert_eq!(request.logo_url, "https://mamoru.ai/default-agent-logo.png");
+
+        assert_eq!(
+            request.kind,
+            crate::daemon_builder::DaemonMetadataType::Subcribable
+        );
+
+        assert_eq!(request.supported_chains.len(), 1);
+        assert_eq!(request.tags.len(), 0);
+        assert_eq!(request.versions.len(), 0);
+        assert_eq!(request.parameters.len(), 1);
+
+        assert_eq!(request.parameters[0].key, "test");
+        assert_eq!(request.parameters[0].title, "test");
+    }
+}

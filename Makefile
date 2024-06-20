@@ -5,6 +5,9 @@ BIN_NAME = mamorurs-cli
 
 dev: build-rust  test
 
+install:
+	cargo install --path .
+
 build-rust:
 	cargo build
 	mkdir -p $(BINARY_DIR)
@@ -21,7 +24,7 @@ build-rust-release-macos-aarch64:
 	cp target/aarch64-apple-darwin/release/$(BIN_NAME) ./bin/darwin-arm64/
 
 test:
-	cargo test --workspace
+	cargo test
 
 lint:
 	cargo fmt --all --check

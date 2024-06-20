@@ -1,10 +1,13 @@
 use crate::{
     client::message_client,
-    daemon_builder::{build_daemon_metadata_request, build_daemon_parameters},
-    input::input_user_params,
+    daemon_builder::{
+        build_daemon_metadata_request, build_daemon_parameters, check_supported_chains,
+    },
+    input::{input_user_params, select_user_input},
     manifest::read_manifest_file,
 };
 use inline_colorization::{color_green, color_reset};
+use spinners::{Spinner, Spinners};
 use std::{collections::HashMap, fs, path::Path, time::Duration};
 use tokio::time;
 use url::Url;
@@ -23,18 +26,35 @@ pub async fn publish_agent(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let manifest = read_manifest_file(dir_path).expect("Manifest file not found");
 
+    if !check_supported_chains(&manifest.supported_chains, &chain_name) {
+        eprintln!(
+            "Unsupported chain, please use one of the following: {:?}",
+            manifest.supported_chains
+        );
+        std::process::exit(1);
+    }
+
     let mut user_params: HashMap<String, String> = HashMap::new();
     if let Some(manifest_params) = &manifest.parameters {
         input_user_params(manifest_params, &mut user_params);
     }
+    
+    println!("Publishing agent...");
 
     let message_client =
         message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit, chain_id).await;
     let module_content = read_wasm_file(dir_path)?;
     let request = build_daemon_metadata_request(&manifest, &module_content);
+
+    let mut sp = Spinner::new(Spinners::Triangle, "Publishing metadata".into());
+
     let dm_response = match message_client.register_daemon_metadata(request).await {
         Ok(response) => response,
-        Err(e) => return Err(Box::new(e)),
+        Err(e) => {
+            sp.stop();
+            println!("Error registering daemon metadata: {:?}", e);
+            return Err(Box::new(e));
+        }
     };
 
     time::sleep(Duration::from_millis(1000)).await;
@@ -44,6 +64,7 @@ pub async fn publish_agent(
         "DaemonMetadataId: {color_green}{}{color_reset}",
         daemon_metadata_id
     );
+
     println!("DaemonMetadata successfully registered");
 
     let daemon_parameters =
@@ -60,11 +81,14 @@ pub async fn publish_agent(
     {
         Ok(daemon) => Some(daemon),
         Err(e) => {
+            sp.stop();
             println!("Error registering daemon: {:?}", e);
             None
         }
     };
 
+    time::sleep(Duration::from_millis(1000)).await;
+    sp.stop_with_message("Completed".into());
     let daemon_id = daemon.unwrap().daemon_id;
     println!("DaemonId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
@@ -73,7 +97,7 @@ pub async fn publish_agent(
 }
 
 fn read_wasm_file(dir_path: &Path) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let wasm_dir_path = dir_path.join("target/wasm32-unknown-unknown/release");
+    let wasm_dir_path = dir_path.join("target/wasm32-wasi/release/");
     let wasm_files = fs::read_dir(wasm_dir_path.clone())?
         .map(|entry| entry.unwrap().path())
         .filter(|path| path.extension().map_or(false, |ext| ext == "wasm"))
@@ -88,7 +112,14 @@ fn read_wasm_file(dir_path: &Path) -> Result<Vec<u8>, Box<dyn std::error::Error>
             Ok(std::fs::read(wasm_file_path)?)
         }
         _ => {
-            panic!("Multiple Wasm files found in {}", wasm_dir_path.display());
+            let items = wasm_files
+                .iter()
+                .map(|path| path.file_name().unwrap().to_str().unwrap().to_string())
+                .collect();
+            let index = select_user_input(items);
+            let wasm_file = wasm_files.get(index).expect("Wasm file not found");
+            let wasm_file_path = wasm_file.canonicalize()?;
+            Ok(std::fs::read(wasm_file_path)?)
         }
     }
 }
