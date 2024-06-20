@@ -90,6 +90,7 @@ pub async fn publish_agent(
     time::sleep(Duration::from_millis(1000)).await;
     sp.stop_with_message("Completed".into());
     let daemon_id = daemon.unwrap().daemon_id;
+    println!();
     println!("AgentId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 

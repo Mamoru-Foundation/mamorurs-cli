@@ -51,6 +51,8 @@ pub async fn launch_agent(
     sp.stop();
 
     let daemon_id = daemon.unwrap().daemon_id;
+
+    println!();
     println!("AgentId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 
