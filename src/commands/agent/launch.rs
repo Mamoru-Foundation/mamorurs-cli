@@ -25,8 +25,6 @@ pub async fn launch_agent(
         std::process::exit(1);
     }
 
-    println!("Publishing agent...");
-
     let message_client =
         message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit, chain_id).await;
     let mut user_params: HashMap<String, String> = HashMap::new();
@@ -45,7 +43,7 @@ pub async fn launch_agent(
         Ok(daemon) => Some(daemon),
         Err(e) => {
             sp.stop();
-            println!("Error registering daemon: {:?}", e);
+            println!("Error registering agent: {:?}", e);
             None
         }
     };
@@ -53,7 +51,7 @@ pub async fn launch_agent(
     sp.stop();
 
     let daemon_id = daemon.unwrap().daemon_id;
-    println!("DaemonId: {color_green}{}{color_reset}", daemon_id);
+    println!("AgentId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 
     Ok(daemon_id)

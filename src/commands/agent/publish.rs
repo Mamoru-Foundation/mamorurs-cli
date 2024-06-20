@@ -52,7 +52,7 @@ pub async fn publish_agent(
         Ok(response) => response,
         Err(e) => {
             sp.stop();
-            println!("Error registering daemon metadata: {:?}", e);
+            println!("Error registering agent metadata: {:?}", e);
             return Err(Box::new(e));
         }
     };
@@ -61,11 +61,11 @@ pub async fn publish_agent(
 
     let daemon_metadata_id = dm_response.daemon_metadata_id;
     println!(
-        "DaemonMetadataId: {color_green}{}{color_reset}",
+        "MetadataId: {color_green}{}{color_reset}",
         daemon_metadata_id
     );
 
-    println!("DaemonMetadata successfully registered");
+    println!("Metadata successfully registered");
 
     let daemon_parameters =
         build_daemon_parameters(manifest.parameters, user_params, chain_name.clone());
@@ -90,7 +90,7 @@ pub async fn publish_agent(
     time::sleep(Duration::from_millis(1000)).await;
     sp.stop_with_message("Completed".into());
     let daemon_id = daemon.unwrap().daemon_id;
-    println!("DaemonId: {color_green}{}{color_reset}", daemon_id);
+    println!("AgentId: {color_green}{}{color_reset}", daemon_id);
     println!("Agent successfully registered");
 
     Ok(daemon_id)
