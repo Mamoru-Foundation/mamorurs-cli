@@ -35,7 +35,7 @@ pub async fn launch_agent(
     }
     let daemon_parameters =
         build_daemon_parameters(manifest.parameters, user_params, chain_name.clone());
-    
+
     let mut sp = Spinner::new(Spinners::Triangle, "Publishing agent".into());
 
     let daemon = match message_client

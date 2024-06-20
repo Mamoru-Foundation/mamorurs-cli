@@ -38,7 +38,7 @@ pub async fn publish_agent(
     if let Some(manifest_params) = &manifest.parameters {
         input_user_params(manifest_params, &mut user_params);
     }
-    
+
     println!("Publishing agent...");
 
     let message_client =

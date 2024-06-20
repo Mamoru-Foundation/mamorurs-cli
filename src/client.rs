@@ -92,9 +92,8 @@ pub async fn register_daemon_to_organization(
     daemon_id: &str,
     organization_id: &str,
 ) -> std::result::Result<reqwest::Response, reqwest::Error> {
-
     ping_graphql(graphql_url, token).await?;
-    
+
     println!("Registering agent to the organization...");
 
     let client = reqwest::Client::new();
