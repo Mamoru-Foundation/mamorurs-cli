@@ -60,6 +60,7 @@ pub async fn publish_agent(
     time::sleep(Duration::from_millis(1000)).await;
 
     let daemon_metadata_id = dm_response.daemon_metadata_id;
+    println!();
     println!(
         "MetadataId: {color_green}{}{color_reset}",
         daemon_metadata_id
@@ -87,7 +88,7 @@ pub async fn publish_agent(
         }
     };
 
-    time::sleep(Duration::from_millis(1000)).await;
+    time::sleep(Duration::from_millis(2000)).await;
     sp.stop_with_message("Completed".into());
     let daemon_id = daemon.unwrap().daemon_id;
     println!();

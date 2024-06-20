@@ -125,7 +125,6 @@ pub async fn register_daemon_to_organization(
                 if response.status().is_success() {
                     return Ok(response);
                 }
-                debug!("Response: {:?}", response);
                 println!("{:?}", response.text().await?);
                 std::thread::sleep(std::time::Duration::from_secs(1));
                 println!("Error register agent to the organization. Retrying...");
