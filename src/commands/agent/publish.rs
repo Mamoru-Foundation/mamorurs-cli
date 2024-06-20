@@ -39,14 +39,14 @@ pub async fn publish_agent(
         input_user_params(manifest_params, &mut user_params);
     }
 
-    println!("Publishing agent...");
-
     let message_client =
         message_client(prkey, &grpc.parse::<Url>().unwrap(), gas_limit, chain_id).await;
     let module_content = read_wasm_file(dir_path)?;
     let request = build_daemon_metadata_request(&manifest, &module_content);
 
-    let mut sp = Spinner::new(Spinners::Triangle, "Publishing metadata".into());
+    let mut sp = Spinner::new(Spinners::Triangle, "Publishing agent...".into());
+
+
 
     let dm_response = match message_client.register_daemon_metadata(request).await {
         Ok(response) => response,

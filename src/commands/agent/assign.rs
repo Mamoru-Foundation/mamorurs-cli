@@ -7,7 +7,7 @@ pub async fn assign_to_organization(
     daemon_id: String,
     organization_id: String,
     cred_store: &impl CredStore,
-) -> Result<String, reqwest::Error> {
+) -> Result<(), reqwest::Error> {
     let token = cred_store
         .get("access_token")
         .expect("access_token required");
@@ -31,7 +31,7 @@ pub async fn assign_to_organization(
     )
     .await
     {
-        Ok(response) => Ok(response.text().await?),
+        Ok(_) => Ok(()),
         Err(e) => Err(e),
     }
 }

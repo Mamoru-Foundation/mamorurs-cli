@@ -3,6 +3,7 @@ mod client;
 mod commands;
 mod config;
 mod daemon_builder;
+mod errors;
 mod input;
 mod manifest;
 
@@ -253,10 +254,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .await
                     {
-                        Ok(_) => {
-                            // dbg!(rest.text().await);
-                            // println!("Agent successfully registered to the organization.")
-                        }
+                        Ok(_) => (),
                         Err(e) => println!("Error graphql: {:?}", e),
                     }
                 }
