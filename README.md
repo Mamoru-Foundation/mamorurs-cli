@@ -19,6 +19,14 @@ Build the project:
 
 ```bash 
 make build-rust-release
+
+or 
+
+make install
+
+or
+
+cargo install --git https://github.com/Mamoru-Foundation/mamorurs-cli
 ```
 
 The binary will be located in the bin directory.
@@ -31,8 +39,10 @@ To publish an agent to the Mamoru chain, use the publish command followed by the
 ```bash 
 mamorurs-cli agent new -n [<name>]
 mamorurs-cli login 
-mamorurs-cli  agent publish --key "<KEY>" --chain-name <CHAIN_NAME>  /path/to/agent_dir/
-mamorurs-cli  agent launch --key "<KEY>" --chain-name <CHAIN_NAME> --metadata-id <METADATA_ID> /path/to/agent_dir/
+mamorurs-cli agent publish --key "<KEY>" --chain-name <CHAIN_NAME>  /path/to/agent_dir/
+mamorurs-cli agent launch --key "<KEY>" --chain-name <CHAIN_NAME> --metadata-id <METADATA_ID> /path/to/agent_dir/
+mamorurs-cli agent unregister --daemon-id <DAEMON_ID>
+mamorurs-cli agent assign --daemon-id <DAEMON_ID> --organization-id <ORGANIZATION_ID>
 ``` 
 
 ## Configuration
@@ -47,7 +57,14 @@ To configure the CLI, you can edit the configuration file located at ~/.mamorurc
 - MAMORU_GAS_LIMIT 
 - MAMORU_GRAPHQL_URL 
 - MAMORU_CHAIN_ID
+- MAMORU_ORGANIZATION_ID
 
+
+Copy and edit file devnet.settings.toml, this file contains the default values for devnet.:
+
+```bash
+cp example.settings.toml ~/.mamorurc/settings.toml
+```
 
 ## Testing
 To run the tests:

@@ -1,5 +1,5 @@
 use crate::manifest::ManifestParameter;
-use dialoguer::Input;
+use dialoguer::{Input, Select};
 use inline_colorization::{color_reset, color_yellow};
 use std::collections::HashMap;
 
@@ -19,4 +19,12 @@ pub fn input_user_params(
             .unwrap();
         user_params.insert(param_name.to_string(), user_input);
     }
+}
+
+pub fn select_user_input(items: Vec<String>) -> usize {
+    Select::new()
+        .with_prompt("What do you choose?")
+        .items(&items)
+        .interact()
+        .unwrap()
 }

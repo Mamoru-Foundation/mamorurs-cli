@@ -1,7 +1,6 @@
 use crate::CommandContext;
 use base64::Engine;
 use cred_store::CredStore;
-use reqwest::blocking::Client;
 use serde::Deserialize;
 use tracing::info;
 
@@ -37,51 +36,67 @@ fn is_token_expired(token: &str) -> bool {
     claims.exp < now
 }
 
-pub fn refresh_access_token(
+pub async fn refresh_access_token(
     domain: &str,
     client_id: &str,
     refresh_token: &str,
 ) -> Result<TokenResponse, Box<dyn std::error::Error>> {
-    let client = Client::new();
     let token_endpoint = format!("{}/oauth/token", domain);
 
-    let resp = client
+    let response = reqwest::Client::new()
         .post(token_endpoint)
         .form(&[
             ("grant_type", "refresh_token"),
             ("client_id", client_id),
             ("refresh_token", refresh_token),
         ])
-        .send();
+        .send()
+        .await
+        .expect("send");
 
-    match resp {
-        Ok(response) => {
-            let token_response: TokenResponse = response.json()?;
-            Ok(token_response)
+    match response.json::<TokenResponse>().await {
+        Ok(response) => Ok(response),
+        Err(e) => {
+            println!("Error refreshing access token: {:?}", e);
+            Err(Box::new(e))
         }
-        Err(e) => Err(Box::new(e)),
     }
 }
 
-pub fn get_token<T: CredStore>(
-    context: &mut CommandContext<T>,
-) -> Result<Option<String>, Box<dyn std::error::Error>> {
+pub async fn get_token<T: CredStore>(
+    context: &mut CommandContext<'_, T>,
+) -> Result<Option<String>, Box<dyn std::error::Error>>
+where
+    T: CredStore,
+{
     let mut credentials = context.cred_store.load()?;
     let access_token = credentials.get("access_token").cloned();
     let refresh_token = credentials.get("refresh_token").cloned();
 
-    match (access_token, refresh_token) {
+    let token = match (access_token, refresh_token) {
         (Some(at), Some(rt)) => {
             if is_token_expired(&at) {
+                println!("Access token expired. Refreshing...");
                 info!("Access token expired. Refreshing...");
                 let token_response = refresh_access_token(
                     &context.config.mamoru_cli_auth0_domain,
                     &context.config.mamoru_cli_auth0_client_id,
                     &rt,
-                )?;
-                let new_access_token = token_response.access_token.unwrap();
-                let new_refresh_token = token_response.refresh_token.unwrap();
+                )
+                .await?;
+                let new_access_token = match token_response.access_token {
+                    Some(at) => at,
+                    None => {
+                        println!("Couldn't refresh access token.");
+                        return Err("Couldn't refresh access token.".into());
+                    }
+                };
+                let new_refresh_token = match token_response.refresh_token {
+                    Some(rt) => rt,
+                    None => "".to_string(),
+                };
 
+                info!("Access token refreshed.");
                 credentials
                     .add("access_token".to_string(), new_access_token.clone())
                     .add("refresh_token".to_string(), new_refresh_token);
@@ -94,7 +109,9 @@ pub fn get_token<T: CredStore>(
             }
         }
         _ => Ok(None),
-    }
+    };
+
+    token
 }
 
 #[cfg(test)]

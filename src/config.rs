@@ -17,6 +17,7 @@ pub struct Config {
     pub mamoru_gas_limit: String,
     pub mamoru_graphql_url: String,
     pub mamoru_chain_id: String,
+    pub mamoru_organization_id: String,
 }
 
 impl Config {
@@ -27,7 +28,7 @@ impl Config {
             builder =
                 builder.add_source(File::from(Path::new(config_path)).format(FileFormat::Toml));
         }
-        // builder = builder.add_source(File::with_name("examples/hierarchical-env/config/local").required(false))
+
         builder = builder.add_source(config::Environment::default());
 
         let config = match builder.build() {
@@ -55,14 +56,15 @@ fn create_config_file(config_path: &str) -> Result<(), Box<dyn Error>> {
 
         file.write_all(
             toml::toml! {
-                MAMORU_CLI_AUTH0_DOMAIN = "https://mamoru.us.auth0.com"
-                MAMORU_CLI_AUTH0_CLIENT_ID = "DKVTdw1UnneGumqOAPrEJs8RqdGTDd2e"
+                MAMORU_CLI_AUTH0_DOMAIN = "https://dev-xp12liakgecl7vlc.us.auth0.com"
+                MAMORU_CLI_AUTH0_CLIENT_ID = "dwauk7iBT36rlvE4XTh3QJ0IxWAv8AGc"
                 MAMORU_CLI_AUTH0_AUDIENCE = "https://mamoru.ai"
-                MAMORU_RPC_URL = "http://localhost:9090"
+                MAMORU_RPC_URL = "https://devnet.chain.mamoru.foundation:26657"
                 MAMORU_PRIVATE_KEY = ""
                 MAMORU_GAS_LIMIT = "200000000"
-                MAMORU_GRAPHQL_URL = "https://mamoru-be-production.mamoru.foundation/graphql"
+                MAMORU_GRAPHQL_URL = "https://mamoru-be-development.mamoru.foundation/graphql"
                 MAMORU_CHAIN_ID = "devnet"
+                MAMORU_ORGANIZATION_ID = "cbcb995c-aa56-4edb-a305-57a66edf5480"
             }
             .to_string()
             .as_bytes(),
@@ -89,6 +91,7 @@ mod tests {
         env::set_var("MAMORU_GAS_LIMIT", "200000000");
         env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
         env::set_var("MAMORU_CHAIN_ID", "validationchain");
+        env::set_var("MAMORU_ORGANIZATION_ID", "some_organization_id");
         let config = Config::from_env(None).unwrap();
         assert_eq!(
             config.mamoru_cli_auth0_domain, "http://localhost",
@@ -122,6 +125,10 @@ mod tests {
             config.mamoru_chain_id, "validationchain",
             "chain_id should be equal"
         );
+        assert_eq!(
+            config.mamoru_organization_id, "some_organization_id",
+            "organization_id should be equal"
+        );
     }
 
     #[sealed_test]
@@ -134,6 +141,7 @@ mod tests {
         env::set_var("MAMORU_GAS_LIMIT", "1234567890");
         env::set_var("MAMORU_GRAPHQL_URL", "http://localhost:1234");
         env::set_var("MAMORU_CHAIN_ID", "validationchain");
+        env::set_var("MAMORU_ORGANIZATION_ID", "some_organization_id");
         let tmp_dir = TempDir::new().unwrap();
         let config_file = tmp_dir.path().join("mamoru.toml");
         let mut tmp_file = File::create(&config_file).unwrap();
@@ -146,6 +154,7 @@ mod tests {
             MAMORU_GAS_LIMIT = "9000000"
             MAMORU_GRAPHQL_URL = "http://graphql_url"
             MAMORU_CHAIN_ID = "chain_id"
+            MAMORU_ORGANIZATION_ID = "some_organization_id"
         };
         tmp_file
             .write_all(config_data.to_string().as_bytes())
@@ -183,6 +192,10 @@ mod tests {
         assert_eq!(
             config.mamoru_chain_id, "validationchain",
             "chain_id should be equal"
+        );
+        assert_eq!(
+            config.mamoru_organization_id, "some_organization_id",
+            "organization_id should be equal"
         );
 
         tmp_dir.close().unwrap();

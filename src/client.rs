@@ -48,10 +48,7 @@ pub async fn message_client_config(
 ) -> MessageClientConfig {
     let private_key: cosmrs::crypto::secp256k1::SigningKey = string_to_signing_key(key.as_str());
     let builder = Config::builder()
-        .set_default(
-            "max_decoding_message_size",
-            DEFAULT_MAX_RECV_MESSAGE_SIZE.to_string(),
-        )
+        .set_default("max_decoding_message_size", (20 * 1024 * 1024).to_string())
         .unwrap()
         .add_source(
             config::Environment::with_prefix("MAMORU")
@@ -88,37 +85,79 @@ fn string_to_signing_key(private_key_str: &str) -> secp256k1::SigningKey {
     secp256k1::SigningKey::from_slice(&secret_key_bytes).expect("Can not parse private key bytes")
 }
 
-pub async fn register_daemon_to_graphql(
+pub async fn register_daemon_to_organization(
     graphql_url: &str,
     token: &str,
     daemon_id: &str,
+    organization_id: &str,
 ) -> std::result::Result<reqwest::Response, reqwest::Error> {
+    ping_graphql(graphql_url, token).await?;
+
+    println!("Registering agent to the organization...");
+
     let client = reqwest::Client::new();
+    // GraphQL mutation query
+    let query = r#"
+    mutation assignDaemonOrganizationId($daemonId: String!, $organizationId: String!) {
+        assignDaemonOrganizationId(daemonId: $daemonId, organizationId: $organizationId) {
+            __typename
+        }
+    }
+    "#;
 
-    let query = json!({
-        "query": "mutation assignDaemonOrganizationId($daemonId: String!) { assignDaemonOrganizationId(daemonId: $daemonId) { __typename } }",
-        "variables": { "daemonId": daemon_id }
+    // Create the JSON body for the request
+    let body = json!({
+        "query": query,
+        "variables": { "daemonId": daemon_id, "organizationId": organization_id }
     });
-
-    let body = query;
-    let body_string = serde_json::to_string(&body).unwrap();
 
     loop {
         match client
             .post(graphql_url)
-            .body(body_string.clone())
+            .json(&body)
             .header("Content-Type", "application/json")
             .header("Authorization", format!("Bearer {}", token))
             .send()
             .await
         {
             Ok(response) => {
-                return Ok(response);
+                if response.status().is_success() {
+                    return Ok(response);
+                }
+                println!("{:?}", response.text().await?);
+                std::thread::sleep(std::time::Duration::from_secs(1));
+                println!("Error register agent to the organization. Retrying...");
             }
             Err(e) => {
-                std::thread::sleep(std::time::Duration::from_secs(1000));
-                println!("Error register agent to the organisation: {}", e);
+                println!("Error register agent to the organization: {}", e);
+                return Err(e);
             }
         };
+    }
+}
+
+pub async fn ping_graphql(
+    graphql_url: &str,
+    token: &str,
+) -> Result<reqwest::Response, reqwest::Error> {
+    let query = r#"
+    query {
+        authPing {
+          status
+        }
+      }
+    "#;
+    let client = reqwest::Client::new();
+    let response = client
+        .post(graphql_url)
+        .json(&json!({ "query": query }))
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", token))
+        .send()
+        .await;
+
+    match response {
+        Ok(response) => Ok(response),
+        Err(e) => Err(e),
     }
 }
