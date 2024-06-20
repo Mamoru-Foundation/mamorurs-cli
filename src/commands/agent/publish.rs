@@ -46,8 +46,6 @@ pub async fn publish_agent(
 
     let mut sp = Spinner::new(Spinners::Triangle, "Publishing agent...".into());
 
-
-
     let dm_response = match message_client.register_daemon_metadata(request).await {
         Ok(response) => response,
         Err(e) => {
