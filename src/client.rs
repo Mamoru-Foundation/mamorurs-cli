@@ -7,7 +7,6 @@ use mamoru_chain_client::{
 };
 
 use serde_json::json;
-use tracing::debug;
 use url::Url;
 
 #[allow(dead_code)]

@@ -255,7 +255,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     {
                         Ok(_) => {
                             // dbg!(rest.text().await);
-                           // println!("Agent successfully registered to the organization.")
+                            // println!("Agent successfully registered to the organization.")
                         }
                         Err(e) => println!("Error graphql: {:?}", e),
                     }
