@@ -123,7 +123,6 @@ pub async fn register_daemon_to_organization(
         {
             Ok(response) => {
                 if response.status().is_success() {
-                    println!("Success register agent to the organization");
                     return Ok(response);
                 }
                 debug!("Response: {:?}", response);
