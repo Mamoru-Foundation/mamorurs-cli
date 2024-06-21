@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - '*'
+      - v[0-9]+.*
 
 permissions:
   contents: write
@@ -12,14 +12,6 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate inputs
-        run: |
-          if [[ "${{ inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "OK";
-          else
-            echo "Invalid tag format. Given: ${{ inputs.tag }}";
-            exit 1;
-          fi
       - uses: webfactory/ssh-agent@v0.6.0
         with:
           ssh-private-key: |
