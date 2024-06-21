@@ -42,6 +42,14 @@ jobs:
             os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
+            ${{ secrets.VALIDATION_CHAIN_KEY }}
+      - uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.RELEASE_BRANCH_NAME }}
