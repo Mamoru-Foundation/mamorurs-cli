@@ -39,8 +39,8 @@ jobs:
             platform: linux
           - runner: macos-13-xl
             platform: darwin
-          # - runner: macos-13-xl
-          #   platform: darwin-aarch64
+          - runner: macos-13-xl
+            platform: darwin-aarch64
 
     runs-on: ${{ matrix.runner }}
     env:
@@ -130,4 +130,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: mamorurs-cli-${{ matrix.os }}-${{ matrix.version }}
           path: ./bin/**/mamorurs-cli
