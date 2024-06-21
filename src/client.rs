@@ -9,6 +9,8 @@ use mamoru_chain_client::{
 use serde_json::json;
 use url::Url;
 
+use crate::errors::ResponseData;
+
 #[allow(dead_code)]
 pub async fn query_client(grpc_url: Url) -> QueryClient {
     QueryClient::connect(query_client_config(grpc_url))
@@ -90,7 +92,7 @@ pub async fn register_daemon_to_organization(
     token: &str,
     daemon_id: &str,
     organization_id: &str,
-) -> std::result::Result<reqwest::Response, reqwest::Error> {
+) -> std::result::Result<(), reqwest::Error> {
     ping_graphql(graphql_url, token).await?;
 
     println!("Registering agent to the organization...");
@@ -121,10 +123,20 @@ pub async fn register_daemon_to_organization(
             .await
         {
             Ok(response) => {
-                if response.status().is_success() {
-                    return Ok(response);
+                let status = response.status();
+                let response_data: ResponseData = response.json::<ResponseData>().await?;
+                if let Some(errors) = response_data.errors {
+                    if !errors.is_empty() {
+                        println!("Error register agent to the organization: {:?}", errors);
+                        println!("Retrying...");
+                        std::thread::sleep(std::time::Duration::from_secs(1));
+                        continue;
+                    }
                 }
-                println!("{:?}", response.text().await?);
+                if status.is_success() {
+                    println!("Agent successfully registered to the organization.");
+                    return Ok(());
+                }
                 std::thread::sleep(std::time::Duration::from_secs(1));
                 println!("Error register agent to the organization. Retrying...");
             }
