@@ -1,13 +1,9 @@
-name: "Release2"
-on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'The release tag. Must follow Rust versioning conventions, e.g. "0.0.0"'
-        required: true
+name: Create Release
 
-env:
-  RELEASE_BRANCH_NAME: release/${{ inputs.tag }}
+on:
+  push:
+    tags:
+      - '*'
 
 permissions:
   contents: write
