@@ -36,7 +36,6 @@ jobs:
       - uses: ./.github/actions/init-git-user
       - uses: taiki-e/create-gh-release-action@v1
         with:
-          branch: main
           # (required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
 
