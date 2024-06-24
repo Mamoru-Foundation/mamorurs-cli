@@ -1,0 +1,93 @@
+name: "Release"
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The release tag. Must follow Rust versioning conventions, e.g. "0.0.0"'
+        required: true
+
+env:
+  CRATE_NAME: mamorurs-cli
+  GITHUB_TOKEN: ${{ github.token }}
+  RUST_BACKTRACE: 1
+
+jobs:
+  build:
+    name: Release - ${{ matrix.platform.release_for }}
+    strategy:
+      matrix:
+        platform:
+          - release_for: Linux-x86_64
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            bin: mamorurs-cli
+            name: mamorurs-cli-Linux-x86_64.zip
+
+          - release_for: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: mamorurs-cli.exe
+            name: mamorurs-cli-Windows-x86_64.zip
+
+          - release_for: macOS-x86_64
+            os: macos-latest
+            target: x86_64-apple-darwin
+            bin: mamorurs-cli
+            name: mamorurs-cli-Darwin-x86_64.tar.gz
+
+          - release_for: macOS-aarch64
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: mamorurs-cli
+            name: mamorurs-cli-Darwin-aarch64.tar.gz
+
+
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: ${{ matrix.platform.command }}
+          target: ${{ matrix.platform.target }}
+          args: "--locked --release"
+          strip: true
+
+      - name: Package release binaries
+        run: |
+          cd target/${{ matrix.platform.target }}/release
+          if [[ "${{ matrix.platform.name }}" == *.zip ]]; then
+            zip ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          else
+            tar -czvf ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          fi
+        shell: bash
+
+      - name: Upload release binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.platform.name }}
+          path: target/${{ matrix.platform.target }}/release/${{ matrix.platform.name }}
+
+
+  release:
+    name: Release Binaries
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./release-binaries
+
+      - name: Upload release binaries to GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.inputs.tag }}
+          name: Release ${{ github.event.inputs.tag }}
+          files: ./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz

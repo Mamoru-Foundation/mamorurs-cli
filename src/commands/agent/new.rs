@@ -1,3 +1,4 @@
+#[cfg(feature = "no-ssl")]
 use cargo_generate::{generate, GenerateArgs, TemplatePath, Vcs};
 
 const GIT_TEMPLATE_PATH: &str = "https://github.com/Mamoru-Foundation/mamoru-wit-agent-templat.git";
@@ -20,6 +21,7 @@ const GIT_TEMPLATE_PATH: &str = "https://github.com/Mamoru-Foundation/mamoru-wit
 /// # Panics
 ///
 /// This function will panic if the generation of the new agent fails for any reason.
+#[cfg(feature = "no-ssl")]
 pub fn create_new_agent(name: String) {
     println!("Creating new agent at {}", name);
 
