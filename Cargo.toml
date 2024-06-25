@@ -3,6 +3,10 @@ name = "mamorurs-cli"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+no-ssl = ["cargo-generate"]
+
 [dependencies]
 clap = { version = "4.5.4", features = ["derive", "env", "cargo"] }
 cosmrs = { git = "https://github.com/Mamoru-Foundation/cosmos-rust.git", rev = "6761b0874b0bb73a01d6fecddf90ecb58abc7b03" }
@@ -17,7 +21,7 @@ mamoru-chain-client = { git = "ssh://git@github.com/Mamoru-Foundation/mamoru-cor
 cred-store = { path = "cred-store" }
 serde_yaml = "0.9.34"
 serde = { version = "1.0.203", features = ["derive"] }
-cargo-generate = "0.21.0"
+cargo-generate = { version = "0.21.0", features = ["vendored-libgit2"], optional = true }
 serde_json = "1.0.117"
 config = "0.14.0"
 open = "5.1.4"
