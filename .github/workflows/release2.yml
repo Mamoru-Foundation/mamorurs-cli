@@ -1,4 +1,4 @@
-name: "Release"
+name: "Release Cross"
 on:
   workflow_dispatch:
     inputs:
@@ -44,6 +44,13 @@ jobs:
 
     runs-on: ${{ matrix.platform.os }}
     steps:
+
+      - uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.MAMORU_CORE_KEY }}
+            ${{ secrets.VALIDATION_CHAIN_KEY }}
+
       - name: Checkout source code
         uses: actions/checkout@v3
         with:
@@ -91,3 +98,9 @@ jobs:
           tag: ${{ github.event.inputs.tag }}
           name: Release ${{ github.event.inputs.tag }}
           files: ./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz
+
+#      - uses: AButler/upload-release-assets@v3.0
+#        with:
+#          files: "./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz"
+#          repo-token: ${{ secrets.GITHUB_TOKEN }}
+#          release-tag: ${{ github.event.inputs.tag }}
