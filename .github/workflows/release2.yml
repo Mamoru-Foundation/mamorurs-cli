@@ -56,6 +56,12 @@ jobs:
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
 
+      - name: GitHub SSH known hosts
+        shell: bash
+        run: |
+          ssh-keyscan github.com > /etc/ssh/ssh_known_hosts || exit 1
+          exit 0
+
       - uses: Swatinem/rust-cache@v2
       - name: Run linting
         run: |
