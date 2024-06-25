@@ -54,7 +54,6 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
-            ${{ secrets.VALIDATION_CHAIN_KEY }}
 
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
