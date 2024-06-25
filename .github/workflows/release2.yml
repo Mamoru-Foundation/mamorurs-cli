@@ -58,9 +58,10 @@ jobs:
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
 
-      - uses: arduino/setup-protoc@v1
+      - uses: aarduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "23.x"
 
       - uses: Swatinem/rust-cache@v2
       - name: Run linting
