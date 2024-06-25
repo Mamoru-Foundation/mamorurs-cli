@@ -45,16 +45,17 @@ jobs:
     runs-on: ${{ matrix.platform.os }}
     steps:
 
-      - uses: webfactory/ssh-agent@v0.6.0
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
             ${{ secrets.VALIDATION_CHAIN_KEY }}
 
-      - name: Checkout source code
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
