@@ -1,6 +1,7 @@
 #[cfg(feature = "no-ssl")]
 use cargo_generate::{generate, GenerateArgs, TemplatePath, Vcs};
 
+#[allow(dead_code)]
 const GIT_TEMPLATE_PATH: &str = "https://github.com/Mamoru-Foundation/mamoru-wit-agent-templat.git";
 
 /// This function creates a new agent with the given name.

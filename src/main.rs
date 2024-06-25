@@ -263,6 +263,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if let Some(new_matches) = agent_matches.subcommand_matches("new") {
+            #[allow(unused_variables)]
             let name = new_matches.get_one::<String>("name").unwrap().to_string();
             #[cfg(feature = "no-ssl")]
             commands::agent::new::create_new_agent(name);
