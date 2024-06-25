@@ -10,6 +10,8 @@ env:
   CRATE_NAME: mamorurs-cli
   GITHUB_TOKEN: ${{ github.token }}
   RUST_BACKTRACE: 1
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
+
 
 jobs:
   build:
