@@ -46,7 +46,7 @@ jobs:
     steps:
 
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -54,6 +54,12 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.MAMORU_CORE_KEY }}
+            ${{ secrets.VALIDATION_CHAIN_KEY }}
+
+      - uses: Swatinem/rust-cache@v2
+      - name: Run linting
+        run: |
+            make lint
 
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
