@@ -59,9 +59,8 @@ jobs:
 
       - name: "Add GitHub to the SSH known hosts file"
         run: |
-          mkdir -p -m 0700 /home/runner/.ssh
           curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' >> /home/runner/.ssh/known_hosts
-          chmod 600 /home/runner/.ssh/known_hosts
+
 
       - uses: Swatinem/rust-cache@v2
       - name: Run linting
