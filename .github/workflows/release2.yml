@@ -64,9 +64,6 @@ jobs:
           version: "23.x"
 
       - uses: Swatinem/rust-cache@v2
-      - name: Run linting
-        run: |
-            make lint
 
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
@@ -110,10 +107,25 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.tag }}
           name: Release ${{ github.event.inputs.tag }}
-          files: ./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz
+          files: "mamorurs-cli-*"
 
-#      - uses: AButler/upload-release-assets@v3.0
+      - uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "mamorurs-cli-*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.event.inputs.tag }}
+
+#      - name: Publish release artifacts
+#        uses: actions/upload-artifact@v4
 #        with:
-#          files: "./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz"
-#          repo-token: ${{ secrets.GITHUB_TOKEN }}
-#          release-tag: ${{ github.event.inputs.tag }}
+#          name: mamorurs-cli-${{ matrix.platform.release_for }}
+#          path: "mamorurs-cli-*"
+#
+#      - name: Generate SHA-256
+#        run: shasum -a 256 ${{ matrix.platform.name }}
+#
+#      - name: Publish GitHub release
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          draft: true
+#          files: "mamorurs-cli-*"
