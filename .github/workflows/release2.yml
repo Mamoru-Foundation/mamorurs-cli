@@ -107,11 +107,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.tag }}
           name: Release ${{ github.event.inputs.tag }}
-          artifacts: "mamorurs-cli-*"
+          artifacts: "./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz"
 
       - uses: AButler/upload-release-assets@v3.0
         with:
-          files: "mamorurs-cli-*"
+          files: ./release-binaries/**/*.zip, ./release-binaries/**/*.tar.gz
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           release-tag: ${{ github.event.inputs.tag }}
 
