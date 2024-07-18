@@ -52,7 +52,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
-        run: cargo build --verbose
+        run: cargo build -r --verbose
 
   tests:
     runs-on: self-hosted

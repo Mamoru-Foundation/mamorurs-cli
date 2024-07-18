@@ -1,3 +1,4 @@
+use crate::client::query_client;
 use crate::{
     client::message_client,
     daemon_builder::{
@@ -11,6 +12,8 @@ use spinners::{Spinner, Spinners};
 use std::{collections::HashMap, fs, path::Path, time::Duration};
 use tokio::time;
 use url::Url;
+
+use futures::TryStreamExt;
 
 /// Publishes an agent to a specified chain.
 ///
@@ -26,10 +29,30 @@ pub async fn publish_agent(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let manifest = read_manifest_file(dir_path).expect("Manifest file not found");
 
+    println!("Publishing agent to chain: {color_green}{}{color_reset}", chain_name);
+
     if !check_supported_chains(&manifest.supported_chains, &chain_name) {
         eprintln!(
-            "Unsupported chain, please use one of the following: {:?}",
+            "Unsupported chain, manifest support only: {:?}",
             manifest.supported_chains
+        );
+        std::process::exit(1);
+    }
+    let query_client = query_client(grpc.parse::<Url>().unwrap()).await;
+    let supported_vc_chains_data = query_client
+        .list_chains()
+        .try_collect::<Vec<_>>()
+        .await
+        .unwrap();
+    let mut supported_vc_chains: Vec<String> = vec![];
+    for chain_data in supported_vc_chains_data {
+        supported_vc_chains.push(chain_data.name);
+    }
+
+    if !check_supported_chains(&supported_vc_chains, &chain_name) {
+        eprintln!(
+            "Unsupported chain, please use one of the following: {:?}",
+            supported_vc_chains
         );
         std::process::exit(1);
     }
@@ -50,6 +73,7 @@ pub async fn publish_agent(
         Ok(response) => response,
         Err(e) => {
             sp.stop();
+            println!();
             println!("Error registering agent metadata: {:?}", e);
             return Err(Box::new(e));
         }

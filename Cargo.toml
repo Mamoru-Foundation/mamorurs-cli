@@ -16,7 +16,7 @@ tonic = { version = "0.9", default-features = false, features = ["tls", "gzip"] 
 tokio = { version = "1.38.0", features = ["full"] }
 dirs = "5.0.1"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-mamoru-chain-client = { git = "https://github.com/Mamoru-Foundation/mamoru-core.git", rev = "7b6d4612cb8fc452eb87dd00f54104b1095c3f64"}
+mamoru-chain-client = { git = "https://github.com/Mamoru-Foundation/mamoru-core.git", rev = "468f81daf0627d12d8498a6a7e150857d6ba5c87"}
 #mamoru-chain-client = { path =  "../mamoru-core/chain-client"}
 cred-store = { path = "cred-store" }
 serde_yaml = "0.9.34"
@@ -32,6 +32,7 @@ tracing = "0.1.40"
 dialoguer = "0.11.0"
 inline_colorization = "0.1.6"
 toml = "0.8.14"
+futures = "0.3.30"
 
 
 [build-dependencies]

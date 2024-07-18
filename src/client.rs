@@ -3,7 +3,7 @@ use config::Config;
 use cosmrs::crypto::secp256k1;
 use mamoru_chain_client::{
     AccountConfig, ChainConfig, ConnectionConfig, MessageClient, MessageClientConfig, QueryClient,
-    QueryClientConfig, SendMode, DEFAULT_MAX_RECV_MESSAGE_SIZE,
+    QueryClientConfig, SendMode,
 };
 
 use serde_json::json;
@@ -32,13 +32,8 @@ pub async fn message_client(
 #[allow(dead_code)]
 pub fn query_client_config(grpc_url: Url) -> QueryClientConfig {
     QueryClientConfig {
-        connection: ConnectionConfig {
-            endpoint: grpc_url,
-            max_decoding_message_size: DEFAULT_MAX_RECV_MESSAGE_SIZE,
-        },
-        sdk_versions: Some(mamoru_chain_client::VersionConfig {
-            versions: Vec::new(),
-        }),
+        connection: ConnectionConfig { endpoint: grpc_url },
+        versions: mamoru_chain_client::VersionConfig { sdk_versions: None },
     }
 }
 
@@ -58,12 +53,9 @@ pub async fn message_client_config(
                 .separator("_"),
         );
     match builder.build() {
-        Ok(config) => {
+        Ok(_config) => {
             let connect_config = ConnectionConfig {
                 endpoint: grpc_url.to_owned(),
-                max_decoding_message_size: config
-                    .get::<usize>("max_decoding_message_size")
-                    .unwrap(),
             };
             MessageClientConfig {
                 connection: connect_config,

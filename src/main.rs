@@ -14,7 +14,6 @@ use cred_store::{CredStore, Credentials};
 
 use clap::{arg, command, value_parser, Arg, ArgMatches};
 use std::{env, panic, path::PathBuf};
-use tracing::{debug, info};
 
 pub struct CommandContext<'a, T: CredStore> {
     pub config: &'a Config,
@@ -55,9 +54,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config: &config,
         cred_store: &mut credentials,
     };
-
-    debug!("DEBUG");
-    info!("INFO");
 
     let matches = command!()
         .about("mamoru cli tool")
