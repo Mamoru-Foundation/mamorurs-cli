@@ -25,7 +25,7 @@ jobs:
             os: ubuntu-20.04
             target: x86_64-unknown-linux-gnu
             bin: mamorurs-cli
-            name: mamorurs-cli-Linux-x86_64.zip
+            name: mamorurs-cli-linux-x86_64.zip
 
 #          - release_for: Windows-x86_64
 #            os: windows-latest
@@ -37,13 +37,13 @@ jobs:
             os: macos-latest
             target: x86_64-apple-darwin
             bin: mamorurs-cli
-            name: mamorurs-cli-Darwin-x86_64.tar.gz
+            name: mamorurs-cli-darwin-x86_64.tar.gz
 
           - release_for: macOS-aarch64
             os: macOS-latest
             target: aarch64-apple-darwin
             bin: mamorurs-cli
-            name: mamorurs-cli-Darwin-aarch64.tar.gz
+            name: mamorurs-cli-darwin-aarch64.tar.gz
 
 
     runs-on: ${{ matrix.platform.os }}
@@ -79,9 +79,10 @@ jobs:
         run: |
           cd target/${{ matrix.platform.target }}/release/
           if [[ "${{ matrix.platform.name }}" == *.zip ]]; then
-            zip ${{ matrix.platform.bin }}-${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          mamorurs-cli-mamorurs-cli-Darwin-aarch64.tar.gz.tar.gz
+            zip ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
           else
-            tar -czvf ${{ matrix.platform.bin }}-${{ matrix.platform.name }}.tar.gz ${{ matrix.platform.bin }}
+            tar -czvf ${{ matrix.platform.name }}.tar.gz ${{ matrix.platform.bin }}
           fi
         shell: bash
 
@@ -89,7 +90,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.platform.name }}
-          path: target/${{ matrix.platform.target }}/release/${{ matrix.platform.name }}
+          path: | 
+            ./target/${{ matrix.platform.target }}/release/${{ matrix.platform.name }}.zip
+            ./target/${{ matrix.platform.target }}/release/${{ matrix.platform.name }}.tar.gz
 
 
   release:
