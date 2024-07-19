@@ -75,15 +75,15 @@ jobs:
           args: "--locked --release"
           strip: true
 
-      - name: Package release binaries
-        run: |
-          cd target/${{ matrix.platform.target }}/release/
-          if [[ "${{ matrix.platform.name }}" == *.zip ]]; then
-            zip ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
-          else
-            tar -czvf ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
-          fi
-        shell: bash
+#      - name: Package release binaries
+#        run: |
+#          cd target/${{ matrix.platform.target }}/release/
+#          if [[ "${{ matrix.platform.name }}" == *.zip ]]; then
+#            zip ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+#          else
+#            tar -czvf ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+#          fi
+#        shell: bash
 
       - name: Upload release binaries
         uses: actions/upload-artifact@v4
@@ -103,7 +103,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: |
-            ./release-binaries/mamorurs-cli-*
+            ./release-binaries/
       - name: Display structure of downloaded files
         run: ls -lh ./release-binaries/*
 #      - name: Upload release binaries to GitHub Release
@@ -118,15 +118,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./release-binaries/mamorurs-cli-darwin-aarch64.tar.gz
-            ./release-binaries/mamorurs-cli-darwin-x86_64.tar.gz
-            ./release-binaries/mamorurs-cli-linux-x86_64.zip
+            ./release-binaries/mamorurs-cli-*
+
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.tag }}
           body: "Release ${{ github.event.inputs.tag }}"
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: false
+          generate_release_notes: true
 
 
 
