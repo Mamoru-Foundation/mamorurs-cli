@@ -103,11 +103,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: |
-            ./release-binaries/mamorurs-cli-darwin-aarch64.tar.gz
-            ./release-binaries/mamorurs-cli-darwin-x86_64.tar.gz
-            ./release-binaries/mamorurs-cli-linux-x86_64.zip
+            ./release-binaries/mamorurs-cli-*
       - name: Display structure of downloaded files
-        run: ls -R ./release-binaries/
+        run: ls -lh ./release-binaries/*
 #      - name: Upload release binaries to GitHub Release
 #        uses: ncipollo/release-action@v1
 #        with:
@@ -119,7 +117,10 @@ jobs:
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./release-binaries/*
+          files: |
+            ./release-binaries/mamorurs-cli-darwin-aarch64.tar.gz
+            ./release-binaries/mamorurs-cli-darwin-x86_64.tar.gz
+            ./release-binaries/mamorurs-cli-linux-x86_64.zip
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.tag }}
