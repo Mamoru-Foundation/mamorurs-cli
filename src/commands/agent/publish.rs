@@ -29,7 +29,10 @@ pub async fn publish_agent(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let manifest = read_manifest_file(dir_path).expect("Manifest file not found");
 
-    println!("Publishing agent to chain: {color_green}{}{color_reset}", chain_name);
+    println!(
+        "Publishing agent to chain: {color_green}{}{color_reset}",
+        chain_name
+    );
 
     if !check_supported_chains(&manifest.supported_chains, &chain_name) {
         eprintln!(
