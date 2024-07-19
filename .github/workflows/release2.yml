@@ -90,7 +90,7 @@ jobs:
         with:
           name: ${{ matrix.platform.name }}
           path: | 
-            ./target/${{ matrix.platform.target }}/release/${{ matrix.platform.name }}
+            ./target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
 
 
   release:
