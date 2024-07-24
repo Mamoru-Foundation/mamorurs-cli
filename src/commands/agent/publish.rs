@@ -136,7 +136,9 @@ fn read_wasm_file(dir_path: &Path) -> Result<Vec<u8>, Box<dyn std::error::Error>
             let wasm_file = wasm_files.first().expect("Wasm file not found");
             let wasm_file_path = wasm_file.canonicalize()?;
             println!("wasm_file: {:?}", wasm_file_path);
-            Ok(std::fs::read(wasm_file_path).expect("Error reading Wasm file, use command for build agent: `cargo-component build -r`"))
+            Ok(std::fs::read(wasm_file_path).expect(
+                "Error reading Wasm file, use command for build agent: `cargo-component build -r`",
+            ))
         }
         _ => {
             let items = wasm_files
@@ -146,7 +148,9 @@ fn read_wasm_file(dir_path: &Path) -> Result<Vec<u8>, Box<dyn std::error::Error>
             let index = select_user_input(items);
             let wasm_file = wasm_files.get(index).expect("Wasm file not found");
             let wasm_file_path = wasm_file.canonicalize()?;
-            Ok(std::fs::read(wasm_file_path).expect("Error reading Wasm file, use command for build agent: `cargo-component build -r`"))
+            Ok(std::fs::read(wasm_file_path).expect(
+                "Error reading Wasm file, use command for build agent: `cargo-component build -r`",
+            ))
         }
     }
 }
