@@ -102,8 +102,7 @@ jobs:
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            release-binaries/*
+          files: "./release-binaries/*.zip"
 
           draft: false
           prerelease: false
