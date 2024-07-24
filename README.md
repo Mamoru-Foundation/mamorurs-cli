@@ -45,6 +45,21 @@ mamorurs-cli agent unregister --daemon-id <DAEMON_ID>
 mamorurs-cli agent assign --daemon-id <DAEMON_ID> --organization-id <ORGANIZATION_ID>
 ``` 
 
+## Agent build 
+Before building an agent, you must install:
+
+```bash
+cargo install cargo-component@=0.11.0 --locked
+rustup target add wasm32-wasi
+```
+
+
+To build an agent, run the following command:
+```bash
+ cargo-component build --release
+```
+**--release** Release mode is required for the agent.
+
 ## Configuration
 
 To configure the CLI, you can edit the configuration file located at ~/.mamorurc/settings.toml The configuration file contains the following fields:
