@@ -87,23 +87,17 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: |
-            ./release-binaries/
-      - name: Display structure of downloaded files
-        run: ls -lh ./release-binaries/*
-#      - name: Upload release binaries to GitHub Release
-#        uses: ncipollo/release-action@v1
-#        with:
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          tag: ${{ github.event.inputs.tag }}
-#          name: Release ${{ github.event.inputs.tag }}
-#          artifacts: "./release-binaries/mamorurs-cli-*"
+          path: ./release-binaries/
+
+      - name: Display matching files for release
+        run: |
+          echo "Matching files:"
+          ls -lh ./release-binaries/*.zip
 
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          files: "./release-binaries/*.zip"
-
+          files: "release-binaries/*.zip"
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.tag }}

@@ -59,7 +59,7 @@ fn create_config_file(config_path: &str) -> Result<(), Box<dyn Error>> {
                 MAMORU_CLI_AUTH0_DOMAIN = "https://dev-xp12liakgecl7vlc.us.auth0.com"
                 MAMORU_CLI_AUTH0_CLIENT_ID = "dwauk7iBT36rlvE4XTh3QJ0IxWAv8AGc"
                 MAMORU_CLI_AUTH0_AUDIENCE = "https://mamoru.ai"
-                MAMORU_RPC_URL = "https://devnet.chain.mamoru.foundation:26657"
+                MAMORU_RPC_URL = "https://devnet.chain.mamoru.foundation:9090"
                 MAMORU_PRIVATE_KEY = ""
                 MAMORU_GAS_LIMIT = "200000000"
                 MAMORU_GRAPHQL_URL = "https://mamoru-be-development.mamoru.foundation/graphql"

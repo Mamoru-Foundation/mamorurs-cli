@@ -115,21 +115,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 .env("MAMORU_PRIVATE_KEY"),
                         )
                         .arg(
-                            Arg::new("file")
-                                .help("Path to Agent directory")
-                                .required(true)
-                                .value_parser(value_parser!(PathBuf)),
+                            arg!(--grpc <GRPC> "gRPC URL")
+                                .required(false)
+                                .env("MAMORU_RPC_URL"),
                         )
                         .arg(arg!(--"chain-id" <CHAIN_ID> "Chain ID").required(false))
                         .arg(
                             arg!(-o --"organization-id" <ORGANIZATION_ID> "Organization ID")
                                 .required(false),
+                        )
+                        .arg(
+                            Arg::new("file")
+                                .help("Path to Agent directory")
+                                .required(true)
+                                .value_parser(value_parser!(PathBuf)),
                         ),
                 )
                 .subcommand(
                     command!("assign")
                         .about("Assign an agent to an organization")
-                        .arg(arg!(-d --"daemon-id" <DAEMON_ID> "Daemon ID").required(true))
+                        .arg(arg!(-d --"agent-id" <AGENT_ID> "Agent ID").required(true))
                         .arg(
                             arg!(-o --"organization-id" <ORGANIZATION_ID> "Organization ID")
                                 .required(false),
@@ -139,7 +144,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .subcommand(
                     command!("unregister")
                         .about("Unregister an agent")
-                        .arg(arg!(-d --"daemon-id" <DAEMON_ID> "Daemon ID").required(true))
+                        .arg(arg!(-d --"agent-id" <AGENT_ID> "Agent ID").required(true))
                         .arg(
                             arg!(--"gas-limit" <GAS_LIMIT> "Gas limit")
                                 .default_value("200000000")
@@ -164,7 +169,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(agent_matches) = matches.subcommand_matches("agent") {
         if let Some(publish_matches) = agent_matches.subcommand_matches("publish") {
-            check_auth(&mut context).await?;
+            let grpc: String = match publish_matches.get_one::<String>("grpc") {
+                Some(grpc) => grpc.to_string(),
+                None => {
+                    if context.config.mamoru_rpc_url.is_empty() {
+                        eprintln!("gRPC URL required");
+                        std::process::exit(1);
+                    } else {
+                        context.config.mamoru_rpc_url.clone()
+                    }
+                }
+            };
+            if grpc != "http://localhost:9090" && grpc != "http://127.0.0.1:9090" {
+                println!("Checking auth");
+                check_auth(&mut context).await?;
+            }
 
             let file_path = publish_matches
                 .get_one::<PathBuf>("file")
@@ -180,18 +199,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         std::process::exit(1);
                     } else {
                         context.config.mamoru_private_key.clone()
-                    }
-                }
-            };
-
-            let grpc: String = match publish_matches.get_one::<String>("grpc") {
-                Some(grpc) => grpc.to_string(),
-                None => {
-                    if context.config.mamoru_rpc_url.is_empty() {
-                        eprintln!("gRPC URL required");
-                        std::process::exit(1);
-                    } else {
-                        context.config.mamoru_rpc_url.clone()
                     }
                 }
             };
@@ -232,29 +239,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let organization_id = get_organization_id(publish_matches, &context);
 
             let publish_result = commands::agent::publish::publish_agent(
-                grpc, prkey, chain_name, &file_path, gas_limit, chain_id,
+                grpc.clone(),
+                prkey,
+                chain_name,
+                &file_path,
+                gas_limit,
+                chain_id,
             )
             .await;
 
-            let token = context
-                .cred_store
-                .get("access_token")
-                .expect("access_token required");
-            match publish_result {
-                Ok(daemon_id) => {
-                    match register_daemon_to_organization(
-                        context.config.mamoru_graphql_url.as_str(),
-                        token,
-                        daemon_id.as_str(),
-                        organization_id.as_str(),
-                    )
-                    .await
-                    {
-                        Ok(_) => (),
-                        Err(e) => println!("Error graphql: {:?}", e),
+            if grpc != "http://localhost:9090" && grpc != "http://127.0.0.1:9090" {
+                println!("Assign agent to organization");
+                let token = context
+                    .cred_store
+                    .get("access_token")
+                    .expect("access_token required");
+                match publish_result {
+                    Ok(daemon_id) => {
+                        match register_daemon_to_organization(
+                            context.config.mamoru_graphql_url.as_str(),
+                            token,
+                            daemon_id.as_str(),
+                            organization_id.as_str(),
+                        )
+                        .await
+                        {
+                            Ok(_) => (),
+                            Err(e) => println!("Error graphql: {:?}", e),
+                        }
                     }
+                    Err(e) => println!("Error publish agent: {:?}", e),
                 }
-                Err(e) => println!("Error publish agent: {:?}", e),
             }
         }
 
@@ -269,7 +284,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if let Some(launch_matches) = agent_matches.subcommand_matches("launch") {
-            check_auth(&mut context).await?;
+            let grpc: String = match launch_matches.get_one::<String>("grpc") {
+                Some(grpc) => grpc.to_string(),
+                None => {
+                    if context.config.mamoru_rpc_url.is_empty() {
+                        eprintln!("gRPC URL required");
+                        std::process::exit(1);
+                    } else {
+                        context.config.mamoru_rpc_url.clone()
+                    }
+                }
+            };
+            if grpc != "http://localhost:9090" && grpc != "http://127.0.0.1:9090" {
+                println!("Checking auth");
+                check_auth(&mut context).await?;
+            }
 
             let file_path = launch_matches
                 .get_one::<PathBuf>("file")
@@ -293,18 +322,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         std::process::exit(1);
                     } else {
                         context.config.mamoru_private_key.clone()
-                    }
-                }
-            };
-
-            let grpc: String = match launch_matches.get_one::<String>("grpc") {
-                Some(grpc) => grpc.to_string(),
-                None => {
-                    if context.config.mamoru_rpc_url.is_empty() {
-                        eprintln!("gRPC URL required");
-                        std::process::exit(1);
-                    } else {
-                        context.config.mamoru_rpc_url.clone()
                     }
                 }
             };
@@ -340,7 +357,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let publish_result = commands::agent::launch::launch_agent(
                 metadata_id,
-                grpc,
+                grpc.clone(),
                 prkey,
                 chain_name,
                 &file_path,
@@ -348,27 +365,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 chain_id,
             )
             .await;
+            if grpc != "http://localhost:9090" && grpc != "http://127.0.0.1:9090" {
+                println!("Assign agent to organization");
+                let token = context
+                    .cred_store
+                    .get("access_token")
+                    .expect("access_token required");
 
-            let token = context
-                .cred_store
-                .get("access_token")
-                .expect("access_token required");
-
-            match publish_result {
-                Ok(daemon_id) => {
-                    match register_daemon_to_organization(
-                        context.config.mamoru_graphql_url.as_str(),
-                        token,
-                        daemon_id.as_str(),
-                        organization_id.as_str(),
-                    )
-                    .await
-                    {
-                        Ok(_) => println!("Agent successfully registered to the organization."),
-                        Err(e) => println!("Error graphql: {:?}", e),
+                match publish_result {
+                    Ok(daemon_id) => {
+                        match register_daemon_to_organization(
+                            context.config.mamoru_graphql_url.as_str(),
+                            token,
+                            daemon_id.as_str(),
+                            organization_id.as_str(),
+                        )
+                        .await
+                        {
+                            Ok(_) => println!("Agent successfully registered to the organization."),
+                            Err(e) => println!("Error graphql: {:?}", e),
+                        }
                     }
+                    Err(e) => println!("Error publish agent: {:?}", e),
                 }
-                Err(e) => println!("Error publish agent: {:?}", e),
             }
         }
 
@@ -384,8 +403,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let organization_id = get_organization_id(assign_matches, &context);
 
             let daemon_id = assign_matches
-                .get_one::<String>("daemon-id")
-                .expect("daemon-id required")
+                .get_one::<String>("agent-id")
+                .expect("agent-id required")
                 .to_string();
 
             let graphql_url = assign_matches
@@ -416,8 +435,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             check_auth(&mut context).await?;
 
             let daemon_id = unregister_matches
-                .get_one::<String>("daemon-id")
-                .expect("daemon-id required")
+                .get_one::<String>("agent-id")
+                .expect("agent-id required")
                 .to_string();
 
             let prkey: String = match unregister_matches.get_one::<String>("key") {
