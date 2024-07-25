@@ -3712,7 +3712,7 @@ dependencies = [
 
 [[package]]
 name = "mamorurs-cli"
-version = "0.1.0"
+version = "0.0.7"
 dependencies = [
  "base64 0.22.1",
  "cargo-generate",
