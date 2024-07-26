@@ -102,6 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .subcommand(
                     command!("launch")
                         .about("Publish an agent to existing metadata")
+                        .arg_required_else_help(true)
                         .arg(arg!(-m --"metadata-id" <METADATA_ID> "Metadata ID").required(true))
                         .arg(arg!(-c --"chain-name" <CHAIN_NAME> "Chain name").required(true))
                         .arg(
@@ -134,6 +135,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .subcommand(
                     command!("assign")
                         .about("Assign an agent to an organization")
+                        .arg_required_else_help(true)
                         .arg(arg!(-d --"agent-id" <AGENT_ID> "Agent ID").required(true))
                         .arg(
                             arg!(-o --"organization-id" <ORGANIZATION_ID> "Organization ID")
@@ -144,6 +146,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .subcommand(
                     command!("unregister")
                         .about("Unregister an agent")
+                        .arg_required_else_help(true)
                         .arg(arg!(-d --"agent-id" <AGENT_ID> "Agent ID").required(true))
                         .arg(
                             arg!(--"gas-limit" <GAS_LIMIT> "Gas limit")

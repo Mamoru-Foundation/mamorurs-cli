@@ -87,8 +87,6 @@ pub async fn register_daemon_to_organization(
 ) -> std::result::Result<(), reqwest::Error> {
     ping_graphql(graphql_url, token).await?;
 
-    println!("Registering agent to the organization...");
-
     let client = reqwest::Client::new();
     // GraphQL mutation query
     let query = r#"
@@ -119,7 +117,11 @@ pub async fn register_daemon_to_organization(
                 let response_data: ResponseData = response.json::<ResponseData>().await?;
                 if let Some(errors) = response_data.errors {
                     if !errors.is_empty() {
-                        println!("Error register agent to the organization: {:?}", errors);
+                        let mut err = errors[0].message.clone();
+                        if errors[0].message.contains("Daemon not found") {
+                            err = "Agent not found".to_string();
+                        }
+                        println!("Error register agent to the organization: {:?}", err);
                         println!("Retrying...");
                         std::thread::sleep(std::time::Duration::from_secs(1));
                         continue;

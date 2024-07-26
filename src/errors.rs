@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Error {
-    message: String,
+    pub message: String,
     //extensions: Extensions,
 }
 

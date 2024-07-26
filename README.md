@@ -41,8 +41,8 @@ mamorurs-cli agent new -n [<name>]
 mamorurs-cli login 
 mamorurs-cli agent publish --key "<KEY>" --chain-name <CHAIN_NAME>  /path/to/agent_dir/
 mamorurs-cli agent launch --key "<KEY>" --chain-name <CHAIN_NAME> --metadata-id <METADATA_ID> /path/to/agent_dir/
-mamorurs-cli agent unregister --daemon-id <DAEMON_ID>
-mamorurs-cli agent assign --daemon-id <DAEMON_ID> --organization-id <ORGANIZATION_ID>
+mamorurs-cli agent unregister --agent-id <AGENT_ID>
+mamorurs-cli agent assign --agent-id <AGENT_ID> --organization-id <ORGANIZATION_ID>
 ``` 
 
 ## Agent build 

@@ -108,7 +108,7 @@ pub async fn publish_agent(
         Ok(daemon) => Some(daemon),
         Err(e) => {
             sp.stop();
-            println!("Error registering daemon: {:?}", e);
+            println!("Error registering agent: {:?}", e);
             None
         }
     };
