@@ -13,7 +13,7 @@ use config::Config;
 use cred_store::{CredStore, Credentials};
 
 use clap::{arg, command, value_parser, Arg, ArgMatches};
-use std::{env, panic, path::PathBuf};
+use std::{env, fs, panic, path::PathBuf};
 
 pub struct CommandContext<'a, T: CredStore> {
     pub config: &'a Config,
@@ -34,6 +34,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let mamoru_dir_path = home_dir.join(MAMORU_CONFIG_DIR);
+    if !mamoru_dir_path.exists() {
+        fs::create_dir_all(mamoru_dir_path.clone())?;
+    }
     let settings_file = mamoru_dir_path.join(CONFIG_NAME);
     let credentials_file = mamoru_dir_path.join(CREDENTIALS);
 

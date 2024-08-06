@@ -1,11 +1,6 @@
 use config::{Config as ConfigBuilder, File, FileFormat};
 use serde::Deserialize;
-use std::{
-    error::Error,
-    fs,
-    io::{BufWriter, Write},
-    path::Path,
-};
+use std::{error::Error, fs, io::Write, path::Path};
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -52,7 +47,7 @@ impl Config {
 fn create_config_file(config_path: &str) -> Result<(), Box<dyn Error>> {
     //create config file if it doesn't exist
     if !Path::new(config_path).exists() {
-        let mut file = BufWriter::new(fs::File::create(config_path)?);
+        let mut file = fs::File::create(config_path)?;
 
         file.write_all(
             toml::toml! {
